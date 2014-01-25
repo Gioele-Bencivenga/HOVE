@@ -1,0 +1,10 @@
+{
+    "name":         "love2d",
+    "url":          "https://github.com/UncleDec/HOVE",
+    "license":      "BSD",
+    "tags":         ["crossplatform", "game", "love2d"],
+    "description":  "LÖVE port to Haxe",
+    "version":      "0.1.0",
+    "releasenote":  "Don't forget to have fun",
+    "contributors": ["insweater"]
+}
