@@ -8,7 +8,6 @@
     "releasenote":  "Don't forget to have fun",
     "contributors": ["insweater"],
 	"dependencies": {
-		"openfl": "1.2.2",
-		"openfl-bitfive": "1.0.5"
+		"openfl": "1.2.2"
 	}
 }
