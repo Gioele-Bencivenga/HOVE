@@ -164,6 +164,7 @@ class LoveGraphics
 			case JointStyle.MITER: return "miter";
 			case JointStyle.BEVEL: return "bevel";
 		}
+		return "";
 	}
 	
 	inline public function setPointSize(size:Float) {
