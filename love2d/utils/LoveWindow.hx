@@ -1,9 +1,10 @@
 package love2d.utils;
 import flash.display.BitmapData;
 import flash.display.StageDisplayState;
+import flash.system.Capabilities;
+import love2d.Handler.Size;
 import love2d.Love;
 import love2d.utils.LoveWindow.Flags;
-import love2d.utils.LoveWindow.Size;
 #if html5
 import js.Browser;
 #end
@@ -18,7 +19,8 @@ class LoveWindow
 	
 	public function new() 
 	{
-		_flags = {fullscreen: false, vsync: true, fsaa: 0, resizable: false, borderless: false, centered: true};
+		_flags = {};
+		setMode(getWidth(), getHeight(), {});
 	}
 	
 	/**
@@ -54,7 +56,7 @@ class LoveWindow
 		#if html5
 		return {width: Browser.window.screen.width, height: Browser.window.screen.height};
 		#else
-		return {width: -1, height: -1}
+		return {width: Std.int(Capabilities.screenResolutionX), height: Std.int(Capabilities.screenResolutionY)};
 		#end
 	}
 	
@@ -75,6 +77,7 @@ class LoveWindow
 		Love.stage.displayState = (!fullscreen)?StageDisplayState.NORMAL:StageDisplayState.FULL_SCREEN;
 		Love.handler.canvas = new BitmapData(Love.stage.stageWidth, Love.stage.stageHeight);
 		Love.handler.bitmap.bitmapData = Love.handler.canvas;
+		_flags.fullscreen = fullscreen;
 		return true;
 	}
 	
@@ -82,8 +85,8 @@ class LoveWindow
 	 * Gets whether the window is fullscreen. 
 	 * @return True if the window is fullscreen, false otherwise; The type of fullscreen mode used.
 	 */
-	inline public function getFullscreen():Dynamic {
-		return {fullscreen: (Love.stage.displayState == StageDisplayState.FULL_SCREEN)?true:false, fstype: "normal"}
+	inline public function getFullscreen():Bool {
+		return _flags.fullscreen;
 	}
 	
 	/**
@@ -112,18 +115,29 @@ class LoveWindow
 	
 	/**
 	 * Changes the display mode. 
-	 * @param	width Display width. 
-	 * @param	height Display height. 
-	 * @param	flags The flags table.
+	 * @param	width	Display width. 
+	 * @param	height	Display height. 
+	 * @param	?flags	The flags table.
 	 * @return	True if successful, false otherwise. 
 	 */
-	public function setMode(width:Int, height:Int, flags:Flags):Bool {
+	public function setMode(width:Int, height:Int, ?flags:Flags = null):Bool {
 		width = (width <= 0)?getWidth():width;
 		height = (height <= 0)?getHeight():height;
+		if (flags == null) return false;
 		
-		#if html5
-		#end
-		return false;
+		if (flags.fullscreen == null) flags.fullscreen = getFullscreen();
+		else setFullscreen(flags.fullscreen);
+		if (flags.vsync == null) flags.vsync = true;
+		if (flags.fsaa == null) flags.fsaa = 0;
+		if (flags.resizable == null) flags.resizable = false;
+		if (flags.borderless == null) flags.borderless = false;
+		if (flags.centered == null) flags.centered = true;
+		if (flags.display == null) flags.display = 1;
+		if (flags.minwidth == null) flags.minwidth = 1;
+		if (flags.minheight == null) flags.minheight = 1;
+		
+		_flags = flags;
+		return true;
 	}
 	
 	/**
@@ -185,15 +199,13 @@ class LoveWindow
 }
 
 typedef Flags = {
-	fullscreen:Bool,
-	vsync:Bool,
-	fsaa:Int,
-	resizable:Bool,
-	borderless:Bool,
-	centered:Bool
-}
-
-typedef Size = {
-	width:Int,
-	height:Int
+	?fullscreen:Null<Bool>,
+	?vsync:Null<Bool>,
+	?fsaa:Null<Int>,
+	?resizable:Null<Bool>,
+	?borderless:Null<Bool>,
+	?centered:Null<Bool>,
+	?display:Null<Int>,
+	?minwidth:Null<Int>,
+	?minheight:Null<Int>
 }

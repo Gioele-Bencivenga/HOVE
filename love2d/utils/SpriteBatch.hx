@@ -345,7 +345,7 @@ class SpriteBatch extends Drawable
 		_size = size;
 	}
 	
-	override public function draw(?x:Float, ?y:Float, ?r:Float, ?sx:Float, ?sy:Float, ?ox:Float, ?oy:Float, ?quad:Quad) {
+	override public function draw(?x:Float, ?y:Float, ?r:Float, ?sx:Float, ?sy:Float, ?ox:Float, ?oy:Float, ?kx:Float, ?ky:Float, ?quad:Quad) {
 		var flags:Int;
 		var item:RenderItem;
 		var l:Int = _renderItems.length;

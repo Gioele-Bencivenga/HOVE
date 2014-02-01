@@ -1,6 +1,7 @@
 package love2d.utils;
 import flash.desktop.Clipboard;
 import flash.desktop.ClipboardFormats;
+import flash.system.System;
 #if !html5
 import flash.sensors.Accelerometer;
 #end
@@ -34,7 +35,7 @@ class LoveSystem
 	 */
 	public function setClipboardText(text:String) {
 		#if flash
-		Clipboard.generalClipboard.setData(ClipboardFormats.TEXT_FORMAT, text, true);
+		System.setClipboard(text);
 		#end
 	}
 	
@@ -45,6 +46,17 @@ class LoveSystem
 	public function getClipboardText():String {
 		//return Clipboard.generalClipboard.getData(ClipboardFormats.TEXT_FORMAT);
 		return "";
+	}
+	
+	/**
+	 * Gets the number of CPU cores in the system. 
+	 * @return	The number of CPU cores. 
+	 */
+	public function getProcessorCount():Int {
+		#if (!flash && !js)
+		if (Sys.environment().exists("NUMBER_OF_PROCESSORS")) return Std.parseInt(Sys.environment().get("NUMBER_OF_PROCESSORS"));
+		#end
+		return 0;
 	}
 	
 	/**

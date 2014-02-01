@@ -1,5 +1,6 @@
 package love2d.utils;
 import love2d.Handler.Point;
+import love2d.Handler.Size;
 
 /**
  * Represents a touch point.
@@ -57,11 +58,27 @@ class Touch extends Object
 	}
 	
 	/**
-	 * Return a size of the finger.
+	 * Returns the width of the finger.
+	 * @return	The width of the finger.
+	 */
+	inline public function getWidth():Int {
+		return _sizeX;
+	}
+	
+	/**
+	 * Returns the height of the finger.
+	 * @return	The height of the finger.
+	 */
+	inline public function getheight():Int {
+		return _sizeY;
+	}
+	
+	/**
+	 * Returns a size of the finger (essentially, how fat the finger is).
 	 * @return Width of the finger, height of the finger.
 	 */
-	inline public function getSize():Point {
-		return {x: _sizeX, y: _sizeY};
+	inline public function getSize():Size {
+		return {width: Std.int(_sizeX), height: Std.int(_sizeY)};
 	}
 	
 	/**

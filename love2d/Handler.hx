@@ -81,25 +81,6 @@ class Handler extends Sprite
 		
 		Lib.current.stage.addChild(this);
 		
-		// initializing modules
-		Love.audio = new love2d.utils.LoveAudio();
-		Love.event = new love2d.utils.LoveEvent();
-		Love.filesystem = new love2d.utils.LoveFilesystem();
-		Love.font = new love2d.utils.LoveFont();
-		Love.graphics = new love2d.utils.LoveGraphics();
-		Love.image = new love2d.utils.LoveImage();
-		Love.joystick = new love2d.utils.LoveJoystick();
-		Love.keyboard = new love2d.utils.LoveKeyboard();
-		Love.math = new love2d.utils.LoveMath();
-		Love.mouse = new love2d.utils.LoveMouse();
-		Love.physics = new love2d.utils.LovePhysics();
-		Love.sound = new love2d.utils.LoveSound();
-		Love.system = new love2d.utils.LoveSystem();
-		Love.thread = new love2d.utils.LoveThread();
-		Love.timer = new love2d.utils.LoveTimer();
-		Love.touch = new love2d.utils.LoveTouch();
-		Love.window = new love2d.utils.LoveWindow();
-		
 		keys = [for (i in 0...255) false];
 		
 		// enterframe
@@ -241,6 +222,30 @@ class Handler extends Sprite
 			if (Love.touchreleased != null) Love.touchreleased(e.stageX, e.stageY, t);
 			
 			Love.touch._count--;
+		});
+		
+		// touchmove
+		stage.addEventListener(TouchEvent.TOUCH_MOVE, function(e:TouchEvent) {
+			var t:Touch = Love.touch._list[e.touchPointID];
+			// touch params
+			t._x = e.stageX;
+			t._y = e.stageY;
+			if (Reflect.hasField(e, "pressure")) {
+				t._pressure = Reflect.getProperty(e, "pressure");
+			}
+			else
+			{
+				t._pressure = 1;
+			}
+			#if !html5
+			t._sizeX = e.sizeX;
+			t._sizeY = e.sizeY;
+			t._isDown = false;
+			#end
+			
+			if (Love.touchmove != null) Love.touchmove(e.stageX, e.stageY, t);
+			
+			Love.touch._count++;
 		});
 		
 		// accelerometerupdate

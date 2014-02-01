@@ -1,0 +1,32 @@
+HOVE 0.1.1
+-----------------------
+
+	Released: N/A
+	
+	* Basic support for love.physics. (WHOA!)
+	* Basic support for love.filesystem.
+	* Added love.graphics.getWidth().
+	* Added love.graphics.getHeight().
+	* Added love.graphics.getDimensions().
+	* Added love.graphics.isSupported().
+	* Added love.graphics.setLineStyle().
+	* Added love.graphics.getLineStyle().
+	* Added love.window.getDesktopDimensions().
+	* Added love.system.getProcessorCount().
+	* Added love.system.setClipboardText() for Flash.
+	* Added love.touchmove.
+	* Added Touch.getWidth().
+	* Added Touch.getHeight().
+	* Added particular support for love.window.setMode().
+	
+	* Fixed arguments for Image and SpriteBatch.
+	* Fixed love.window.getFullscreen().
+	* Fixed Touch.getSize().
+	* Improved documentation for love.graphics.
+	* Lots of minor bugfixes.
+
+HOVE 0.1.0
+------------------------
+
+	Initial release!
+	Released: 2014-01-27

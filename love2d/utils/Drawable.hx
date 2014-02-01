@@ -10,7 +10,7 @@ class Drawable extends Object
 		super();
 	}
 	
-	public function draw(?x:Float, ?y:Float, ?r:Float, ?sx:Float, ?sy:Float, ?ox:Float, ?oy:Float, ?quad:Quad = null):Void {
+	public function draw(?x:Float, ?y:Float, ?r:Float, ?sx:Float, ?sy:Float, ?ox:Float, ?oy:Float, ?kx:Float, ?ky:Float, ?quad:Quad = null):Void {
 		
 	}
 }

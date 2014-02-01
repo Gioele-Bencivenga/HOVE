@@ -5,6 +5,7 @@ import flash.display.BlendMode;
 import flash.display.Graphics;
 import flash.display.JointStyle;
 import flash.display.Sprite;
+import flash.display.StageQuality;
 import flash.geom.ColorTransform;
 import flash.geom.Matrix;
 import flash.geom.Rectangle;
@@ -37,6 +38,9 @@ class LoveGraphics
 	private var _pointSize:Float = 1;
 	private var _lineWidth:Float = 1;
 	private var _jointStyle:JointStyle;
+	private var _lineStyle:String;
+	private var _featuresMap:Map<String, Bool>;
+	
 	@:allow(love2d.utils.SpriteBatch) private var gr:Graphics;
 	
 	// params
@@ -69,8 +73,25 @@ class LoveGraphics
 		
 		_sprite.addChild(_bm);
 		Lib.current.stage.addChild(_sprite);
+		
+		// graphics features
+		_featuresMap = new Map();
+		_featuresMap.set("canvas", false);
+		_featuresMap.set("npot", true);
+		_featuresMap.set("subtractive", true);
+		_featuresMap.set("shader", false);
+		_featuresMap.set("hdrcanvas", false);
+		_featuresMap.set("multicanvas", false);
+		_featuresMap.set("mipmap", false);
+		_featuresMap.set("dxt", false);
+		_featuresMap.set("bc5", false);
+		
+		_lineStyle = "smooth";
 	}
 	
+	/**
+	 * Resets the current coordinate transformation. 
+	 */
 	inline public function origin() {
 		_angle = 0;
 		_scaleX = 1; _scaleY = 1;
@@ -78,41 +99,84 @@ class LoveGraphics
 		_dx = 0; _dy = 0;
 	}
 	
+	/**
+	 * Translates the coordinate system in two dimensions. 
+	 * @param	dx	The translation relative to the x-axis. 
+	 * @param	dy	The translation relative to the y-axis. 
+	 */
 	inline public function translate(dx:Float, dy:Float) {
 		_dx = dx; _dy = dy;
 	}
 	
+	/**
+	 * Rotates the coordinate system in two dimensions. 
+	 * @param	angle	The amount to rotate the coordinate system in radians. 
+	 */
 	inline public function rotate(angle:Float) {
 		_angle = angle;
 	}
 	
+	/**
+	 * Scales the coordinate system in two dimensions. 
+	 * @param	sx	The scaling in the direction of the x-axis. 
+	 * @param	sy	The scaling in the direction of the y-axis. If omitted, it defaults to same as parameter sx. 
+	 */
 	inline public function scale(sx:Float, sy:Float) {
 		_scaleX = sx; _scaleY = sy;
 	}
 	
+	/**
+	 * Shears the coordinate system. 
+	 * @param	kx	The shear factor on the x-axis. 
+	 * @param	ky	The shear factor on the y-axis. 
+	 */
 	inline public function shear(kx:Float, ky:Float) {
 		_kx = kx; _ky = ky;
 	}
 	
+	/**
+	 * Copies and pushes the current coordinate transformation to the transformation stack. 
+	 */
 	public function push() {
 	}
 	
+	/**
+	 * Pops the current coordinate transformation from the transformation stack. 
+	 */
 	public function pop() {
 	}
 	
+	/**
+	 * Clears the screen to the background color and restores the default coordinate system. 
+	 */
 	inline public function clear() {
 		gr.clear();
 		var c = Love.handler.canvas;
 		c.fillRect(c.rect, 0xFF000000 | Love.handler.intBgColor);
 	}
 	
+	/**
+	 * Resets the current graphics settings.
+	 * Calling reset makes the current drawing color white, the current background color black,
+	 * resets any active Canvas or PixelEffect, and removes any scissor settings.
+	 * It sets the BlendMode to alpha and ColorMode to modulate.
+	 * It also sets both the point and line drawing modes to smooth and their sizes to 1.0. 
+	 */
 	public function reset() {
 		setColor();
 		setBackgroundColor(0, 0, 0, 255);
 		setBlendMode("alpha");
 		_pointSize = _lineWidth = 1;
+		_lineStyle = "smooth";
 	}
 	
+	/**
+	 * Sets the color used for drawing. 
+	 * @param	?red	The amount of red. 
+	 * @param	?green	The amount of green. 
+	 * @param	?blue	The amount of blue. 
+	 * @param	?alpha	The amount of alpha. The alpha value will be applied to all subsequent draw operations, even the drawing of an image. 
+	 */
 	inline public function setColor(?red:Int = 255, ?green:Int = 255, ?blue:Int = 255, ?alpha:Int = 255) {
 		red = if (red < 0) 0 else if (red > 255) 255 else red;
 		green = if (green < 0) 0 else if (green > 255) 255 else green;
@@ -125,10 +189,21 @@ class LoveGraphics
 		_colorTransform.alphaMultiplier = alpha / 255;
 	}
 	
+	/**
+	 * Gets the current color. 
+	 * @return	The table that contains the current color.
+	 */
 	inline public function getColor():Color {
 		return Love.handler.color;
 	}
 	
+	/**
+	 * Sets the background color.
+	 * @param	?red	The red component (0-255). 
+	 * @param	?green	The green component (0-255). 
+	 * @param	?blue	The blue component (0-255). 
+	 * @param	?alpha	The alpha component (0-255). 
+	 */
 	inline public function setBackgroundColor(?red:Int = 255, ?green:Int = 255, ?blue:Int = 255, ?alpha:Int = 255) {
 		red = if (red < 0) 0 else if (red > 255) 255 else red;
 		green = if (green < 0) 0 else if (green > 255) 255 else green;
@@ -137,18 +212,34 @@ class LoveGraphics
 		Love.handler.bgColor = {r: red, g: green, b: blue, a: alpha};
 	}
 	
+	/**
+	 * Gets the current background color. 
+	 * @return	The table that contains the current background color.
+	 */
 	inline public function getBackgroundColor():Color {
 		return Love.handler.bgColor;
 	}
 	
+	/**
+	 * Sets the line width. 
+	 * @param	width	The width of the line. 
+	 */
 	inline public function setLineWidth(width:Float) {
 		_lineWidth = width;
 	}
 	
+	/**
+	 * Gets the current line width. 
+	 * @return	The current line width. 
+	 */
 	inline public function getLineWidth():Float {
 		return _lineWidth;
 	}
 	
+	/**
+	 * Sets the line join style. 
+	 * @param	join	The LineJoin to use. 
+	 */
 	public function setLineJoin(join:String) {
 		switch(join) {
 			case "none": _jointStyle = JointStyle.ROUND;
@@ -158,6 +249,10 @@ class LoveGraphics
 		}
 	}
 	
+	/**
+	 * Gets the line join style. 
+	 * @return	The LineJoin style. 
+	 */
 	public function getLineJoin():String {
 		switch(_jointStyle) {
 			case JointStyle.ROUND: return "none";
@@ -167,14 +262,66 @@ class LoveGraphics
 		return "";
 	}
 	
+	/**
+	 * Sets the point size. 
+	 * @param	size	The new point size. 
+	 */
 	inline public function setPointSize(size:Float) {
 		_pointSize = size;
 	}
 	
+	/**
+	 * Gets the point size. 
+	 * @return	The current point size. 
+	 */
 	inline public function getPointSize():Float {
 		return _pointSize;
 	}
 	
+	/**
+	 * Sets the line style. 
+	 * @param	style	The LineStyle to use. 
+	 */
+	inline public function setLineStyle(style:String) {
+		_lineStyle = style;
+	}
+	
+	/**
+	 * Gets the line style. 
+	 * @return	The current line style. 
+	 */
+	inline public function getLineStyle():String {
+		return _lineStyle;
+	}
+	
+	/**
+	 * Gets the width in pixels of the window. 
+	 * @return	The width of the window. 
+	 */
+	inline public function getWidth():Int {
+		return Love.window.getWidth();
+	}
+	
+	/**
+	 * Gets the height in pixels of the window. 
+	 * @return	The height of the window. 
+	 */
+	inline public function getHeight():Int {
+		return Love.window.getHeight();
+	}
+	
+	/**
+	 * Gets the width and height of the window. 
+	 * @return	The width and height of the window. 
+	 */
+	inline public function getDimensions():Size {
+		return Love.window.getDimensions();
+	}
+	
+	/**
+	 * Set an already-loaded Font as the current font or create and load a new one from the file and size. 
+	 * @param	font	The Font object to use. 
+	 */
 	public function setFont(font:Font) {
 		_font = font;
 		_textFormat.font = _font.getFlashFont().fontName;
@@ -187,16 +334,30 @@ class LoveGraphics
 		#end
 	}
 	
+	/**
+	 * Gets the current Font object. 
+	 * @return	The current Font.
+	 */
 	inline public function getFont():Font {
 		return _font;
 	}
 	
+	/**
+	 * Creates and sets a new Font. 
+	 * @param	data	The path and name of the file with the font. 
+	 * @param	?size = 12	The new font. 
+	 * @return
+	 */
 	inline public function setNewFont(data:Dynamic, ?size = 12):Font {
 		var f:Font = newFont(data, size);
 		setFont(f);
 		return f;
 	}
 	
+	/**
+	 * Sets the blending mode. 
+	 * @param	?mode	The blend mode to use. 
+	 */
 	public function setBlendMode(?mode:String = "alpha") {
 		switch(mode) {
 			case "additive": _blendMode = BlendMode.ADD;
@@ -206,6 +367,10 @@ class LoveGraphics
 		}
 	}
 	
+	/**
+	 * Gets the blending mode. 
+	 * @return	The current blend mode. 
+	 */
 	public function getBlendMode():String {
 		switch(_blendMode) {
 			case BlendMode.ADD: return "additive";
@@ -217,6 +382,27 @@ class LoveGraphics
 		return "";
 	}
 	
+	/**
+	 * Checks if certain graphics functions can be used. 
+	 * @param	feature		The graphics feature to check for. 
+	 * @return	True if feature is supported, false otherwise. 
+	 */
+	public function isSupported(feature:String):Bool {
+		if (_featuresMap.exists(feature)) {
+			return _featuresMap.get(feature);
+		}
+		Love.newError("Wrong graphics feature.");
+		return false;
+	}
+	
+	/**
+	 * Draws a rectangle. 
+	 * @param	mode	How to draw the rectangle. 
+	 * @param	x	The position of top-left corner along x-axis. 
+	 * @param	y	The position of top-left corner along y-axis. 
+	 * @param	width	Width of the rectangle. 
+	 * @param	height	Height of the rectangle. 
+	 */
 	public function rectangle(mode:String, x:Float, y:Float, width:Float, height:Float) {
 		gr.clear();
 		
@@ -224,7 +410,7 @@ class LoveGraphics
 			gr.lineStyle(_lineWidth, Love.handler.intColor, Love.handler.color.a / 255);
 			gr.drawRect(x, y, width, height);
 		}
-		else
+		else if (mode == "fill")
 		{
 			gr.beginFill(Love.handler.intColor, Love.handler.color.a / 255);
 			gr.drawRect(x, y, width, height);
@@ -233,14 +419,25 @@ class LoveGraphics
 		Love.handler.canvas.draw(_sprite);
 	}
 	
+	/**
+	 * Draws a circle. 
+	 * @param	mode	How to draw the circle. 
+	 * @param	x	The position of the center along x-axis. 
+	 * @param	y	The position of the center along y-axis. 
+	 * @param	radius	The radius of the circle. 
+	 * @param	?segments	The number of segments used for drawing the circle. 
+	 */
 	public function circle(mode:String, x:Float, y:Float, radius:Float, ?segments:Int) {
 		gr.clear();
+		
+		if (_lineStyle == "smooth") Love.stage.quality = StageQuality.BEST;
+		else if (_lineStyle == "rough") Love.stage.quality = StageQuality.LOW;
 		
 		if (mode == "line") {
 			gr.lineStyle(_lineWidth, Love.handler.intColor, Love.handler.color.a / 255);
 			gr.drawCircle(x, y, radius);
 		}
-		else
+		else if (mode == "fill")
 		{
 			gr.beginFill(Love.handler.intColor, Love.handler.color.a / 255);
 			gr.drawCircle(x, y, radius);
@@ -249,10 +446,22 @@ class LoveGraphics
 		Love.handler.canvas.draw(_sprite);
 	}
 	
+	/**
+	 * Draws a point. 
+	 * @param	x	The position on the x-axis. 
+	 * @param	y	The position on the y-axis. 
+	 */
 	public function point(x:Float, y:Float) {
 		rectangle("fill", x, y, getPointSize(), getPointSize());
 	}
 	
+	/**
+	 * Draws lines between points. 
+	 * @param	x1	The position of first point on the x-axis. 
+	 * @param	?y1	The position of first point on the y-axis. 
+	 * @param	?x2	The position of second point on the x-axis. 
+	 * @param	?y2	The position of second point on the y-axis. 
+	 */
 	public function line(x1:Dynamic, ?y1:Float = null, ?x2:Float = null, ?y2:Float = null) {
 		if (Std.is(x1, Float)) {
 			
@@ -265,6 +474,10 @@ class LoveGraphics
 			if (x1.length % 2 != 0) x1.pop();
 		}
 		gr.clear();
+		
+		if (_lineStyle == "smooth") Love.stage.quality = StageQuality.BEST;
+		else if (_lineStyle == "rough") Love.stage.quality = StageQuality.LOW;
+		
 		gr.lineStyle(_lineWidth, Love.handler.intColor, Love.handler.color.a / 255);
 		if (Std.is(x1, Float)) {
 			gr.moveTo(x2, y2);
@@ -281,15 +494,34 @@ class LoveGraphics
 		Love.handler.canvas.draw(_sprite);
 	}
 	
+	/**
+	 * Draws an arc. 
+	 * @param	mode	How to draw the arc. 
+	 * @param	x	The position of the center along x-axis. 
+	 * @param	y	The position of the center along y-axis. 
+	 * @param	radius	Radius of the arc. 
+	 * @param	angle1	The angle at which the arc begins. 
+	 * @param	angle2	The angle at which the arc terminates. 
+	 * @param	?segments	The number of segments used for drawing the arc. 
+	 */
 	public function arc(mode:String, x:Float, y:Float, radius:Float, angle1:Float, angle2:Float, ?segments:Float = 10) {
 	}
 	
+	/**
+	 * Draw a polygon. 
+	 * @param	mode	How to draw the polygon. 
+	 * @param	vertices	The vertices of the polygon as a table. 
+	 */
 	public function polygon(mode:String, vertices:Array<Handler.Point>) {
 		gr.clear();
+		
+		if (_lineStyle == "smooth") Love.stage.quality = StageQuality.BEST;
+		else if (_lineStyle == "rough") Love.stage.quality = StageQuality.LOW;
+		
 		if (mode == "fill") {
 			gr.beginFill(Love.handler.intColor, Love.handler.color.a / 255);
 		}
-		else
+		else if (mode == "line")
 		{
 			gr.lineStyle(_lineWidth, Love.handler.intColor, Love.handler.color.a / 255);
 		}
@@ -300,8 +532,22 @@ class LoveGraphics
 		Love.handler.canvas.draw(_sprite);
 	}
 	
-	public function draw(drawable:love2d.utils.Drawable, ?x:Float = 0, ?y:Float = 0, ?r:Float = 0, ?sx:Float = 1, ?sy:Float = 1, ?ox:Float = 0, ?oy:Float = 0, ?quad:Quad = null) {
-		drawable.draw(x, y, r, sx, sy, ox, oy, quad);
+	/**
+	 * Draws a Drawable object (an Image, Canvas, SpriteBatch, ParticleSystem, or Mesh) on the screen with optional rotation, scaling and shearing. 
+	 * @param	drawable	A drawable object. 
+	 * @param	?x	The position to draw the object (x-axis). 
+	 * @param	?y	The position to draw the object (y-axis). 
+	 * @param	?r	Orientation (radians). 
+	 * @param	?sx	Scale factor (x-axis). 
+	 * @param	?sy	Scale factor (y-axis). 
+	 * @param	?ox	Origin offset (x-axis). 
+	 * @param	?oy	Origin offset (y-axis).
+	 * @param	?kx Shearing factor (x-axis). 
+	 * @param	?ky Shearing factor (y-axis). 
+	 * @param	?quad	The quad to draw on screen. 
+	 */
+	public function draw(drawable:love2d.utils.Drawable, ?x:Float = 0, ?y:Float = 0, ?r:Float = 0, ?sx:Float = 1, ?sy:Float = 1, ?ox:Float = 0, ?oy:Float = 0, ?kx:Float = 0, ?ky:Float = 0, ?quad:Quad = null) {
+		drawable.draw(x, y, r, sx, sy, ox, oy, kx, ky, quad);
 	}
 	
 	public function bitmap(bd:BitmapData, x:Float = 0, y:Float = 0, ?scaleX:Float = 1, ?scaleY:Float = 1, ?angle:Float = 0, ?originX:Float = 0, ?originY:Float = 0, ?quad:Quad = null) {
@@ -330,7 +576,20 @@ class LoveGraphics
 		}
 	}
 	
-	public function print(text:String, x:Float = 0, y:Float = 0, ?r:Float = 0, ?sx:Float = 1, ?sy:Float = 1, ?ox:Float = 0, ?oy:Float = 0) {
+	/**
+	 * Draws text on screen.
+	 * @param	text	The text to draw. 
+	 * @param	x	The position to draw the object (x-axis). 
+	 * @param	y	The position to draw the object (y-axis). 
+	 * @param	?r	Orientation (radians). 
+	 * @param	?sx	Scale factor (x-axis). 
+	 * @param	?sy	Scale factor (y-axis). 
+	 * @param	?ox	Origin offset (x-axis). 
+	 * @param	?oy	Origin offset (y-axis). 
+	 * @param	?kx Shearing factor (x-axis). 
+	 * @param	?ky	Shearing factor (y-axis). 
+	 */
+	public function print(text:String, x:Float = 0, y:Float = 0, ?r:Float = 0, ?sx:Float = 1, ?sy:Float = 1, ?ox:Float = 0, ?oy:Float = 0, ?kx:Float = 0, ?ky:Float = 0) {
 		_textField.textColor = Love.handler.intColor;
 		_textField.visible = true;
 		_textField.text = text;
@@ -346,7 +605,22 @@ class LoveGraphics
 		Love.handler.canvas.draw(_textField, _mat);
 	}
 	
-	public function printf(text:String, x:Float = 0, y:Float = 0, limit:Int, ?align:String = "left", ?r:Float = 0, ?sx:Float = 1, ?sy:Float = 1, ?ox:Float = 0, ?oy:Float = 0) {
+	/**
+	 * Draws formatted text, with word wrap and alignment. 
+	 * @param	text	A text string. 
+	 * @param	x	The position on the x-axis. 
+	 * @param	y	The position on the y-axis. 
+	 * @param	limit	Wrap the line after this many horizontal pixels. 
+	 * @param	?align	The alignment. 
+	 * @param	?r	Orientation (radians). 
+	 * @param	?sx	Scale factor (x-axis). 
+	 * @param	?sy	Scale factor (y-axis). 
+	 * @param	?ox	Origin offset (x-axis). 
+	 * @param	?oy	Origin offset (y-axis). 
+	 * @param	?kx	Shearing factor (x-axis). 
+	 * @param	?ky	Shearing factor (y-axis). 
+	 */
+	public function printf(text:String, x:Float = 0, y:Float = 0, limit:Int, ?align:String = "left", ?r:Float = 0, ?sx:Float = 1, ?sy:Float = 1, ?ox:Float = 0, ?oy:Float = 0, ?kx:Float = 0, ?ky:Float = 0) {
 		_textField.textColor = Love.handler.intColor;
 		_textField.visible = true;
 		_textField.width = limit;

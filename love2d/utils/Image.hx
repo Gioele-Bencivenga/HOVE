@@ -47,7 +47,7 @@ class Image extends Drawable
 		return {width: getWidth(), height: getHeight()};
 	}
 	
-	override public function draw(?x:Float, ?y:Float, ?r:Float, ?sx:Float, ?sy:Float, ?ox:Float, ?oy:Float, ?quad:Quad) {
+	override public function draw(?x:Float, ?y:Float, ?r:Float, ?sx:Float, ?sy:Float, ?ox:Float, ?oy:Float, ?kx:Float, ?ky:Float, ?quad:Quad) {
 		Love.graphics.bitmap(_bitmapData, x, y, sx, sy, r, ox, oy, quad);
 	}
 }

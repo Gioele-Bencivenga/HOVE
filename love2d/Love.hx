@@ -130,6 +130,11 @@ class Love
 	 */
 	static public var touchreleased:Float->Float->Touch->Void = null;
 	/**
+	 * Love.touchmove(x:Float, y:Float, touch:Touch);
+	 * Called when a finger is moving.
+	 */
+	static public var touchmove:Float->Float->Touch->Void = null;
+	/**
 	 * Love.accelerometerupdate(x:Float, y:Float, z:Float);
 	 * Called when a accelerometer data updates.
 	 */
@@ -185,23 +190,23 @@ class Love
 	static public var quit:Void->Void = null;
 	
 	// modules
-	static public var audio:LoveAudio;
-	static public var event:LoveEvent;
-	static public var filesystem:LoveFilesystem;
-	static public var font:LoveFont;
-	static public var graphics:LoveGraphics;
-	static public var image:LoveImage;
-	static public var joystick:LoveJoystick;
-	static public var keyboard:LoveKeyboard;
-	static public var math:LoveMath;
-	static public var mouse:LoveMouse;
-	static public var physics:LovePhysics;
-	static public var sound:LoveSound;
-	static public var system:LoveSystem;
-	static public var thread:LoveThread;
-	static public var timer:LoveTimer;
-	static public var touch:LoveTouch;
-	static public var window:LoveWindow;
+	static public var audio(default, null):LoveAudio;
+	static public var event(default, null):LoveEvent;
+	static public var filesystem(default, null):LoveFilesystem;
+	static public var font(default, null):LoveFont;
+	static public var graphics(default, null):LoveGraphics;
+	static public var image(default, null):LoveImage;
+	static public var joystick(default, null):LoveJoystick;
+	static public var keyboard(default, null):LoveKeyboard;
+	static public var math(default, null):LoveMath;
+	static public var mouse(default, null):LoveMouse;
+	static public var physics(get, null):LovePhysics;
+	static public var sound(default, null):LoveSound;
+	static public var system(default, null):LoveSystem;
+	static public var thread(default, null):LoveThread;
+	static public var timer(default, null):LoveTimer;
+	static public var touch(default, null):LoveTouch;
+	static public var window(default, null):LoveWindow;
 	
 	// public stuff
 	@:allow(love2d) static private var stage(get, null):Stage;
@@ -213,7 +218,7 @@ class Love
 	/**
 	 * Current HÖVE version.
 	 */
-	inline static public var _hoveversion:String = "0.1.0";
+	inline static public var _hoveversion:String = "0.1.1";
 	
 	// private stuff
 	@:allow(love2d.utils) static private var handler:Handler;
@@ -222,6 +227,27 @@ class Love
 	static public function init() {
 		var h:Sprite = new Sprite();
 		h.addEventListener(Event.ADDED_TO_STAGE, function(e:Event) {
+			// initializing modules
+			audio = new LoveAudio();
+			event = new LoveEvent();
+			filesystem = new LoveFilesystem();
+			font = new LoveFont();
+			graphics = new LoveGraphics();
+			image = new LoveImage();
+			joystick = new LoveJoystick();
+			keyboard = new LoveKeyboard();
+			math = new LoveMath();
+			mouse = new LoveMouse();
+			#if nape
+			physics = new LovePhysics();
+			#end
+			sound = new LoveSound();
+			system = new LoveSystem();
+			thread = new LoveThread();
+			timer = new LoveTimer();
+			touch = new LoveTouch();
+			window = new LoveWindow();
+			
 			handler = new Handler();
 			if (!_inited && load != null) {
 				load();
@@ -247,7 +273,7 @@ class Love
 	 * @return Stage object.
 	 */
 	inline static private function get_stage():Stage {
-		return handler.stage;
+		return Lib.current.stage;
 	}
 	
 	/**
@@ -258,5 +284,14 @@ class Love
 	inline static public function newError(msg:String) {
 		if (Love.errhand != null) Love.errhand(msg);
 		Lib.trace(msg);
+	}
+	
+	static private function get_physics():LovePhysics {
+		#if nape
+		return physics;
+		#else
+		newError("You need to install nape to have access to the love.physics.");
+		return null;
+		#end
 	}
 }
