@@ -14,6 +14,7 @@ class LoveTimer
 	public function new() 
 	{
 		fps = new FPS();
+		Lib.current.stage.addChild(fps);
 	}
 	
 	/**
@@ -21,11 +22,7 @@ class LoveTimer
 	 * @return	The current FPS. 
 	 */
 	public function getFPS():Int {
-		#if !html5
 		return Std.parseInt(fps.text.substr(5));
-		#else
-		return 0;
-		#end
 	}
 	
 	/**
