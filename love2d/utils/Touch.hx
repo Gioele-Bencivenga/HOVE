@@ -62,7 +62,7 @@ class Touch extends Object
 	 * @return	The width of the finger.
 	 */
 	inline public function getWidth():Int {
-		return _sizeX;
+		return Std.int(_sizeX);
 	}
 	
 	/**
@@ -70,7 +70,7 @@ class Touch extends Object
 	 * @return	The height of the finger.
 	 */
 	inline public function getheight():Int {
-		return _sizeY;
+		return Std.int(_sizeY);
 	}
 	
 	/**
