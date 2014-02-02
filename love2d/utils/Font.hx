@@ -7,8 +7,8 @@ import openfl.Assets;
 
 class Font extends Object
 {
-	private var _flashFont:flash.text.Font;
-	private var _size:Float;
+	@:allow(love2d.utils) private var _flashFont:flash.text.Font;
+	@:allow(love2d.utils) private var _size:Float;
 	
 	public function new(data:Dynamic, ?size:Float = 12) 
 	{
@@ -33,13 +33,5 @@ class Font extends Object
 		#else
 		return false;
 		#end
-	}
-	
-	public function getFlashFont():flash.text.Font {
-		return _flashFont;
-	}
-	
-	public function getSize():Float {
-		return _size;
 	}
 }
