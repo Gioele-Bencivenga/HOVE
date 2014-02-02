@@ -66,11 +66,10 @@ class LoveGraphics
 		_textField = new TextField();
 		_textField.text = "";
 		_textField.defaultTextFormat = _textFormat;
-		_textField.embedFonts = true;
+		_textField.embedFonts = false;
 		_textField.selectable = false;
 		_textField.visible = true;
 		_textField.autoSize = TextFieldAutoSize.LEFT;
-		Lib.current.stage.addChild(_textField);
 		
 		_sprite.addChild(_bm);
 		Lib.current.stage.addChild(_sprite);
