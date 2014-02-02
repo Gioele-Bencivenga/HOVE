@@ -556,7 +556,7 @@ class LoveGraphics
 	}
 	
 	public function bitmap(bd:BitmapData, x:Float = 0, y:Float = 0, ?scaleX:Float = 1, ?scaleY:Float = 1, ?angle:Float = 0, ?originX:Float = 0, ?originY:Float = 0, ?quad:Quad = null) {
-		gr.clear();
+		//gr.clear();
 		_mat.identity();
 		_mat.translate( -originX, -originY);
 		if (quad != null) {

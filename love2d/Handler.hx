@@ -298,6 +298,8 @@ class Handler extends Sprite
 		
 		// resize
 		stage.addEventListener(Event.RESIZE, function(e:Event) {
+			// TODO: maybe use this line later
+			//	if (canvas != null) canvas.dispose();
 			canvas = new BitmapData(Love.window.getWidth(), Love.window.getHeight());
 			bitmap.bitmapData = canvas;
 			if (Love.resize != null) Love.resize(Love.window.getWidth(), Love.window.getHeight());
@@ -354,6 +356,13 @@ typedef Color = {
 	g:Int,
 	b:Int,
 	a:Int
+}
+
+typedef FloatColor = {
+	r:Float,
+	g:Float,
+	b:Float,
+	a:Float
 }
 
 typedef Point = {

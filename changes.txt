@@ -20,10 +20,15 @@ HOVE 0.1.1
 	* Added particular support for love.window.setMode().
 	
 	* Fixed arguments for Image and SpriteBatch.
+	* SpriteBatch does work now.
+	* Fixed love.graphics.print() and love.graphics.printf();
 	* Fixed love.window.getFullscreen().
 	* Fixed Touch.getSize().
 	* Improved documentation for love.graphics.
 	* Lots of minor bugfixes.
+	
+	* Removed Font.getFlashFont().
+	* Removed Font.getSize().
 
 HOVE 0.1.0
 ------------------------

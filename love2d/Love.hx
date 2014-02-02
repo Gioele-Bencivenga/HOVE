@@ -232,7 +232,6 @@ class Love
 			event = new LoveEvent();
 			filesystem = new LoveFilesystem();
 			font = new LoveFont();
-			graphics = new LoveGraphics();
 			image = new LoveImage();
 			joystick = new LoveJoystick();
 			keyboard = new LoveKeyboard();
@@ -249,6 +248,7 @@ class Love
 			window = new LoveWindow();
 			
 			handler = new Handler();
+			graphics = new LoveGraphics();
 			if (!_inited && load != null) {
 				load();
 				_inited = true;

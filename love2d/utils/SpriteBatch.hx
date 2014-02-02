@@ -1,9 +1,12 @@
 package love2d.utils;
 import flash.display.BitmapData;
 import flash.display.Graphics;
+import flash.display.Sprite;
 import flash.geom.Rectangle;
+import flash.Lib;
 import haxe.ds.ObjectMap;
 import love2d.Love;
+import love2d.Handler.FloatColor;
 import love2d.utils.SpriteBatch.RenderItem;
 import love2d.utils.SpriteBatch.TilesheetExt;
 import openfl.display.Tilesheet;
@@ -33,8 +36,6 @@ class SpriteBatch extends Drawable
 	private var _currentRenderItem:RenderItem;
 	
 	private var _numQuads:Int = 0;
-	
-	private static var RECT:Rectangle = new Rectangle();
 	
 	public function new(image:Image, ?size:Int = 1000, ?usageHint:String = "dynamic") 
 	{
@@ -103,6 +104,7 @@ class SpriteBatch extends Drawable
 	
 	/**
 	 * Adds a sprite to the batch. 
+	 * @param	quad	The Quad to add. 
 	 * @param	x	The position to draw the object (x-axis). 
 	 * @param	y	The position to draw the object (y-axis). 
 	 * @param	?r	Orientation (radians). 
@@ -112,9 +114,8 @@ class SpriteBatch extends Drawable
 	 * @param	?oy	Origin offset (y-axis). 
 	 * @param	?kx	Shear factor (x-axis). 
 	 * @param	?ky	Shear factor (y-axis). 
-	 * @param	?quad	The Quad to add. 
 	 */
-	public function add(x:Float, y:Float, ?r:Float = 0, ?sx:Float = 1, ?sy:Float = 1, ?ox:Float = 0, ?oy:Float = 0, ?kx:Float = 0, ?ky:Float = 0, ?quad:Quad = null) {
+	public function add(quad:Quad = null, x:Float, y:Float, ?r:Float = 0, ?sx:Float = 1, ?sy:Float = 1, ?ox:Float = 0, ?oy:Float = 0, ?kx:Float = 0, ?ky:Float = 0) {
 		
 		if (_numQuads >= _size) return;
 		
@@ -360,10 +361,9 @@ class SpriteBatch extends Drawable
 			}
 			else if (item.isAlpha)
 			{
-				flags != Tilesheet.TILE_ALPHA;
+				flags |= Tilesheet.TILE_ALPHA;
 			}
-			
-			item.tilesheet.drawTiles(Love.graphics.gr, item.renderList, false, flags);	
+			item.tilesheet.drawTiles(Love.graphics.gr, item.renderList, false, flags);
 		}
 	}
 	
@@ -507,11 +507,4 @@ class RenderItem
 		renderList.splice(0, renderList.length);
 		numQuads = 0;
 	}
-}
-
-typedef FloatColor = {
-	r:Float,
-	g:Float,
-	b:Float,
-	a:Float
 }
