@@ -33,7 +33,7 @@ class LoveGraphics
 	private var _colorTransform:ColorTransform;
 	private var _font:Font;
 	private var _bufferRect:Rectangle;
-	private var _textField:TextField;
+	public var _textField:TextField;
 	private var _textFormat:TextFormat;
 	private var _pointSize:Float = 1;
 	private var _lineWidth:Float = 1;
@@ -70,6 +70,7 @@ class LoveGraphics
 		_textField.selectable = false;
 		_textField.visible = true;
 		_textField.autoSize = TextFieldAutoSize.LEFT;
+		Lib.current.stage.addChild(_textField);
 		
 		_sprite.addChild(_bm);
 		Lib.current.stage.addChild(_sprite);
@@ -322,10 +323,14 @@ class LoveGraphics
 	 * Set an already-loaded Font as the current font or create and load a new one from the file and size. 
 	 * @param	font	The Font object to use. 
 	 */
-	public function setFont(font:Font) {
+	public function setFont(?font:Font = null) {
 		_font = font;
-		_textFormat.font = _font.getFlashFont().fontName;
-		_textFormat.size = _font.getSize();
+		if (font != null) {
+			_textField.embedFonts = true;
+			_textFormat.font = _font._flashFont.fontName;
+			_textFormat.size = _font._size;
+		}
+		else _textField.embedFonts = false;
 		_textField.defaultTextFormat = _textFormat;
 		#if !flash
 		_textField.setTextFormat(_textFormat, 0, _textField.text.length);
@@ -593,15 +598,13 @@ class LoveGraphics
 		_textField.textColor = Love.handler.intColor;
 		_textField.visible = true;
 		_textField.text = text;
-		_textField.x = _textField.y = 0;
+		_textField.x = -ox;
+		_textField.y = -oy;
 		_mat.identity();
-		_mat.translate(-ox * sx, -oy * sy);
+		//_mat.translate(-ox, -oy);
 		_mat.scale(sx, sy);
 		if (r != 0) _mat.rotate(r);
-		_mat.translate(x + ox * sx, y + oy * sy);
-	//	_textField.x = x; _textField.y = y;
-	//	_textField.rotation = r;
-	//	_textField.scaleX = sx; _textField.scaleY = sy;
+		_mat.translate(x, y);
 		Love.handler.canvas.draw(_textField, _mat);
 	}
 	
@@ -621,14 +624,6 @@ class LoveGraphics
 	 * @param	?ky	Shearing factor (y-axis). 
 	 */
 	public function printf(text:String, x:Float = 0, y:Float = 0, limit:Int, ?align:String = "left", ?r:Float = 0, ?sx:Float = 1, ?sy:Float = 1, ?ox:Float = 0, ?oy:Float = 0, ?kx:Float = 0, ?ky:Float = 0) {
-		_textField.textColor = Love.handler.intColor;
-		_textField.visible = true;
-		_textField.width = limit;
-		_textField.text = text;
-		_textField.x = x; _textField.y = y;
-		_textField.rotation = r;
-		_textField.scaleX = sx; _textField.scaleY = sy;
-		
 		_textFormat.align = switch(align) {
 			case "left": TextFormatAlign.LEFT;
 			case "right": TextFormatAlign.RIGHT;
@@ -636,6 +631,8 @@ class LoveGraphics
 			case "justify": TextFormatAlign.JUSTIFY;
 			default: TextFormatAlign.LEFT;
 		}
+		
+		print(text, x, y, r, sx, sy, ox, oy, kx, ky);
 	}
 	
 	// constructors
