@@ -32,6 +32,9 @@ class Quad extends Object
 		else sx = _width;
 		if (sy != -1) _sy = (sy < 1)?1:sy;
 		else sy = _height;
+		
+		_halfWidth = 0.5 * _width;
+		_halfHeight = 0.5 * _height;
 	}
 	
 	/**

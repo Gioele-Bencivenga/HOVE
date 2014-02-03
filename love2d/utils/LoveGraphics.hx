@@ -40,6 +40,7 @@ class LoveGraphics
 	private var _jointStyle:JointStyle;
 	private var _lineStyle:String;
 	private var _featuresMap:Map<String, Bool>;
+	@:allow(love2d.utils) private var _batchMap:Map<Image, SpriteBatch>;
 	
 	@:allow(love2d.utils.SpriteBatch) private var gr:Graphics;
 	
@@ -87,6 +88,8 @@ class LoveGraphics
 		_featuresMap.set("bc5", false);
 		
 		_lineStyle = "smooth";
+		
+		_batchMap = new Map();
 	}
 	
 	/**
@@ -632,6 +635,14 @@ class LoveGraphics
 		}
 		
 		print(text, x, y, r, sx, sy, ox, oy, kx, ky);
+	}
+	
+	public function onExitFrame() {
+		//clear();
+		for (v in _batchMap.keys()) {
+			_batchMap.get(v).draw();
+			_batchMap.get(v).clear();
+		}
 	}
 	
 	// constructors

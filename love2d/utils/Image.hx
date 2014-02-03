@@ -49,5 +49,14 @@ class Image extends Drawable
 	
 	override public function draw(?x:Float, ?y:Float, ?r:Float, ?sx:Float, ?sy:Float, ?ox:Float, ?oy:Float, ?kx:Float, ?ky:Float, ?quad:Quad) {
 		Love.graphics.bitmap(_bitmapData, x, y, sx, sy, r, ox, oy, quad);
+		
+		if (!Love.graphics._batchMap.exists(this)) {
+			var sb:SpriteBatch = new SpriteBatch(this);
+			Love.graphics._batchMap.set(this, sb);
+		}
+		
+		if (Love.graphics._batchMap.exists(this)) {
+			Love.graphics._batchMap.get(this).add(quad, x, y, r, sx, sy, ox, oy, kx, ky);
+		}
 	}
 }

@@ -94,6 +94,7 @@ class Handler extends Sprite
 				Love.graphics.clear();
 				Love.graphics.setColor(color.r, color.g, color.b, color.a);
 				Love.draw();
+				Love.graphics.onExitFrame();
 				//Love.graphics.setColor(255, 255, 255, 255);
 				if (cursor != null) {
 					var img:Image = cursor.getImage();
@@ -105,6 +106,11 @@ class Handler extends Sprite
 				}
 			}
 		});
+		
+		// exitframe
+		/*addEventListener(Event.fra, function(e:Event) {
+			Love.graphics.onExitFrame();
+		});*/
 		
 		// keydown
 		stage.addEventListener(KeyboardEvent.KEY_DOWN, function(e:KeyboardEvent) {

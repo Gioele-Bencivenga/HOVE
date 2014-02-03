@@ -1,7 +1,9 @@
 package love2d.utils;
+import flash.display.Bitmap;
 import flash.display.BitmapData;
 import flash.display.Graphics;
 import flash.display.Sprite;
+import flash.geom.ColorTransform;
 import flash.geom.Rectangle;
 import flash.Lib;
 import haxe.ds.ObjectMap;
@@ -115,7 +117,7 @@ class SpriteBatch extends Drawable
 	 * @param	?kx	Shear factor (x-axis). 
 	 * @param	?ky	Shear factor (y-axis). 
 	 */
-	public function add(quad:Quad = null, x:Float, y:Float, ?r:Float = 0, ?sx:Float = 1, ?sy:Float = 1, ?ox:Float = 0, ?oy:Float = 0, ?kx:Float = 0, ?ky:Float = 0) {
+	public function add(quad:Quad = null, x:Float = 0, y:Float = 0, r:Float = 0, sx:Float = 1, sy:Float = 1, ox:Float = 0, oy:Float = 0, kx:Float = 0, ky:Float = 0) {
 		
 		if (_numQuads >= _size) return;
 		
@@ -472,10 +474,13 @@ class TilesheetExt extends Tilesheet
 	{
 		if (tileIDs.exists(quad))
 			return tileIDs.get(quad);
-		
+		#if (!flash && !js)
 		var id:Int = _numTiles;
-		tileIDs.set(quad, id);
 		addTileRect(new Rectangle(quad._x, quad._y, quad._width, quad._height));
+		#else
+		var id:Int = addTileRect(new Rectangle(quad._x, quad._y, quad._width, quad._height));
+		#end
+		tileIDs.set(quad, id);
 		_numTiles++;
 		return id;
 	}
