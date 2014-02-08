@@ -159,9 +159,13 @@ class LoveWindow
 	
 	/**
 	 * Gets a list of supported fullscreen modes. 
-	 * @return nothing
+	 * @param	?display	The index of the display, if multiple monitors are available. 
+	 * @return	A table of width/height pairs. (Note that this may not be in order.) 
 	 */
-	inline public function getFullscreenModes():Dynamic {
+	public function getFullscreenModes(?display:Int = 1):Array<Array<Int>> {
+		#if (cpp || neko)
+		return Capabilities.screenResolutions;
+		#end
 		return null;
 	}
 	
