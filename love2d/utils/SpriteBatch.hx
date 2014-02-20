@@ -4,6 +4,7 @@ import flash.display.BitmapData;
 import flash.display.Graphics;
 import flash.display.Sprite;
 import flash.geom.ColorTransform;
+import flash.geom.Point;
 import flash.geom.Rectangle;
 import flash.Lib;
 import haxe.ds.ObjectMap;
@@ -29,7 +30,6 @@ class SpriteBatch extends Drawable
 	private var _color:FloatColor;
 	
 	private var _tilesheet:TilesheetExt;
-	private var _imageQuad:Quad;
 	
 	private static var RenderItemPool:Array<RenderItem> = [];
 	
@@ -47,8 +47,6 @@ class SpriteBatch extends Drawable
 		_usageHint = usageHint;
 		
 		_color = { r: 1, g: 1, b: 1, a: 1 };
-		
-		_imageQuad = new Quad(0, 0, image.getWidth(), image.getHeight());
 		
 		_renderItems = [];
 	}
@@ -87,6 +85,8 @@ class SpriteBatch extends Drawable
 			item.clear();
 			RenderItemPool.push(item);
 		}
+		
+		_currentRenderItem = null;
 	}
 	
 	inline private static function getRenderItem():RenderItem
@@ -121,7 +121,7 @@ class SpriteBatch extends Drawable
 		
 		if (_numQuads >= _size) return;
 		
-		if (quad == null)	quad = _imageQuad;
+		if (quad == null)	quad = _image._quad;
 		
 		var colored:Bool = isColored();
 		var alpha:Bool = isAlpha();
@@ -232,7 +232,7 @@ class SpriteBatch extends Drawable
 	public function set(id:Int, x:Float, y:Float, ?r:Float = 0, ?sx:Float = 1, ?sy:Float = 1, ?ox:Float = 0, ?oy:Float = 0, ?kx:Float = 0, ?ky:Float = 0, ?quad:Quad = null) {
 		
 		if (id < _numQuads && id >= 0) {
-			if (quad == null)	quad = _imageQuad;
+			if (quad == null)	quad = _image._quad;
 		
 			var csx:Float = 1;
 			var ssy:Float = 0;
@@ -476,9 +476,9 @@ class TilesheetExt extends Tilesheet
 			return tileIDs.get(quad);
 		#if (!flash && !js)
 		var id:Int = _numTiles;
-		addTileRect(new Rectangle(quad._x, quad._y, quad._width, quad._height));
+		addTileRect(new Rectangle(quad._x, quad._y, quad._width, quad._height), new Point(quad._halfWidth, quad._halfHeight));
 		#else
-		var id:Int = addTileRect(new Rectangle(quad._x, quad._y, quad._width, quad._height));
+		var id:Int = addTileRect(new Rectangle(quad._x, quad._y, quad._width, quad._height), new Point(quad._halfWidth, quad._halfHeight));
 		#end
 		tileIDs.set(quad, id);
 		_numTiles++;

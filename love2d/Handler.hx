@@ -5,6 +5,7 @@ import flash.display.Loader;
 import flash.display.Sprite;
 import flash.display.Stage;
 import haxe.Timer;
+import love2d.Handler.FloatColor;
 #if !html5
 import flash.events.AccelerometerEvent;
 import flash.sensors.Accelerometer;
@@ -121,9 +122,15 @@ class Handler extends Sprite
 				var s:String = LoveKeyboard.toChar(e.keyCode);
 				if (Love.keyboard.isDown("lshift")) s = s.toUpperCase();
 				
-				if (s != "LSHIFT") {
-					if (Love.textinput != null) Love.textinput(s);
+				var t:String;
+				if (s != "LSHIFT" && s != "backspace" && s != "return") {
+					t = s;
 				}
+				else if (StringTools.isSpace(s, 0)) t = " ";
+				else {
+					t = "";
+				}
+				if (Love.textinput != null) Love.textinput(t);
 			}
 			
 			// handling back key on Android
@@ -327,7 +334,7 @@ class Handler extends Sprite
 		stage.addEventListener(Event.CLOSE, function(e:Event) {
 			if (Love.quit != null) Love.quit();
 		});
-		color = {r: 255, g: 255, b: 255, a: 255};
+		color = { r: 255, g: 255, b: 255, a: 255 };
 		bgColor = {r: 0, g: 0, b: 0, a: 255};
 		
 		canvas = new BitmapData(stage.stageWidth, stage.stageHeight, true, 0);

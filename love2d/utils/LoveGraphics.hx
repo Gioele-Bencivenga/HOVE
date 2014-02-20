@@ -20,12 +20,57 @@ import love2d.Love;
 import openfl.Assets;
 import openfl.display.Tilesheet;
 
+import love2d.utils.SpriteBatch;
+
 /**
  * Drawing of shapes and images, management of screen geometry.
  */
 
 class LoveGraphics
 {
+	private static var RenderItemPool:Array<RenderItem> = [];
+	
+	private var _renderItems:Array<RenderItem>;
+	
+	private var _currentRenderItem:RenderItem;
+	
+	private static function getRenderItemFromPool():RenderItem
+	{
+		return (RenderItemPool.length > 0) ? RenderItemPool.pop() : new RenderItem();
+	}
+	
+	@:allow(love2d) private function getRenderItem(tilesheet:TilesheetExt, alpha:Bool = false, colored:Bool = false):RenderItem
+	{
+		if (_currentRenderItem == null || (_currentRenderItem.isAlpha != alpha || _currentRenderItem.isColored != colored || _currentRenderItem.tilesheet != tilesheet))
+		{
+			_currentRenderItem = getRenderItemFromPool();
+			_currentRenderItem.isColored = colored;
+			_currentRenderItem.isAlpha = alpha;
+			
+			if (colored && alpha)
+			{
+				_currentRenderItem.numElementsPerQuad = RenderItem.NUM_ELEMENTS_RGB_ALPHA;
+			}
+			else if (colored && !alpha)
+			{
+				_currentRenderItem.numElementsPerQuad = RenderItem.NUM_ELEMENTS_RGB;
+			}
+			else if (!colored && alpha)
+			{
+				_currentRenderItem.numElementsPerQuad = RenderItem.NUM_ELEMENTS_ALPHA;
+			}
+			else
+			{
+				_currentRenderItem.numElementsPerQuad = RenderItem.NUM_ELEMENTS_NO_RGB_ALPHA;
+			}
+			
+			_currentRenderItem.tilesheet = tilesheet;
+			_renderItems.push(_currentRenderItem);
+		}
+		
+		return _currentRenderItem;
+	}
+	
 	private var _sprite:Sprite;
 	private var _bm:Bitmap;
 	@:allow(love2d) private var _mat:Matrix;
@@ -89,6 +134,11 @@ class LoveGraphics
 		
 		_lineStyle = "smooth";
 		
+		_renderItems = [];
+		
+		
+		
+		// TODO: remove it later
 		_batchMap = new Map();
 	}
 	
@@ -180,12 +230,21 @@ class LoveGraphics
 	 * @param	?blue	The amount of blue. 
 	 * @param	?alpha	The amount of alpha. The alpha value will be applied to all subsequent draw operations, even the drawing of an image. 
 	 */
-	inline public function setColor(?red:Int = 255, ?green:Int = 255, ?blue:Int = 255, ?alpha:Int = 255) {
-		red = if (red < 0) 0 else if (red > 255) 255 else red;
+	inline public function setColor(?red:Dynamic = 255, ?green:Int = 255, ?blue:Int = 255, ?alpha:Int = 255) {
+		var r:Int = 0; if (Std.is(red, Int)) {
+			r = if (red < 0) 0 else if (red > 255) 255 else red;
+		}
 		green = if (green < 0) 0 else if (green > 255) 255 else green;
 		blue = if (blue < 0) 0 else if (blue > 255) 255 else blue;
 		alpha = if (alpha < 0) 0 else if (alpha > 255) 255 else alpha;
-		Love.handler.color = {r: red, g: green, b: blue, a: alpha};
+		if (Std.is(red, Array)) {
+			var l:Int = red.length;
+			r = if (l > 0) red[0] else 255;
+			green = if (l > 1) red[1] else 255;
+			blue = if (l > 2) red[2] else 255;
+			alpha = if (l > 3) red[3] else 255;
+		}
+		Love.handler.color = {r: r, g: green, b: blue, a: alpha};
 		_colorTransform.redMultiplier = red / 255;
 		_colorTransform.greenMultiplier = green / 255;
 		_colorTransform.blueMultiplier = blue / 255;
@@ -395,11 +454,11 @@ class LoveGraphics
 	 * @return	True if feature is supported, false otherwise. 
 	 */
 	public function isSupported(feature:String):Bool {
-		if (_featuresMap.exists(feature)) {
-			return _featuresMap.get(feature);
+		if (!_featuresMap.exists(feature)) {
+			Love.newError("Wrong graphics feature.");
+			return false;
 		}
-		Love.newError("Wrong graphics feature.");
-		return false;
+		return _featuresMap.get(feature);
 	}
 	
 	/**
@@ -411,7 +470,9 @@ class LoveGraphics
 	 * @param	height	Height of the rectangle. 
 	 */
 	public function rectangle(mode:String, x:Float, y:Float, width:Float, height:Float) {
+		#if (flash || js)
 		gr.clear();
+		#end
 		
 		if (mode == "line") {
 			gr.lineStyle(_lineWidth, Love.handler.intColor, Love.handler.color.a / 255);
@@ -435,10 +496,11 @@ class LoveGraphics
 	 * @param	?segments	The number of segments used for drawing the circle. 
 	 */
 	public function circle(mode:String, x:Float, y:Float, radius:Float, ?segments:Int) {
+		#if (flash || js)
 		gr.clear();
+		#end
 		
-		if (_lineStyle == "smooth") Love.stage.quality = StageQuality.BEST;
-		else if (_lineStyle == "rough") Love.stage.quality = StageQuality.LOW;
+		// TO-DO: line style
 		
 		if (mode == "line") {
 			gr.lineStyle(_lineWidth, Love.handler.intColor, Love.handler.color.a / 255);
@@ -470,6 +532,11 @@ class LoveGraphics
 	 * @param	?y2	The position of second point on the y-axis. 
 	 */
 	public function line(x1:Dynamic, ?y1:Float = null, ?x2:Float = null, ?y2:Float = null) {
+		
+		breakBatch();
+		
+		Lib.trace("line");
+		
 		if (Std.is(x1, Float)) {
 			
 		}
@@ -480,7 +547,9 @@ class LoveGraphics
 			}
 			if (x1.length % 2 != 0) x1.pop();
 		}
+		#if (flash || js)
 		gr.clear();
+		#end
 		
 		if (_lineStyle == "smooth") Love.stage.quality = StageQuality.BEST;
 		else if (_lineStyle == "rough") Love.stage.quality = StageQuality.LOW;
@@ -489,6 +558,7 @@ class LoveGraphics
 		if (Std.is(x1, Float)) {
 			gr.moveTo(x2, y2);
 			gr.lineTo(x1, y1);
+			Lib.trace("lineTo");
 		}
 		else if (Std.is(x1, Array)) {
 			/*var i:Int, o:Array<Float> = cast x1;
@@ -498,7 +568,12 @@ class LoveGraphics
 				i += 2;
 			}*/
 		}
+	//	#if (flash || js)
 		Love.handler.canvas.draw(_sprite);
+	//	#else
+		
+	//	#end
+		gr.lineStyle();
 	}
 	
 	/**
@@ -520,7 +595,9 @@ class LoveGraphics
 	 * @param	vertices	The vertices of the polygon as a table. 
 	 */
 	public function polygon(mode:String, vertices:Array<Handler.Point>) {
+		#if (flash || js)
 		gr.clear();
+		#end
 		
 		if (_lineStyle == "smooth") Love.stage.quality = StageQuality.BEST;
 		else if (_lineStyle == "rough") Love.stage.quality = StageQuality.LOW;
@@ -537,6 +614,7 @@ class LoveGraphics
 		gr.lineTo(vertices[0].x, vertices[0].y);
 		gr.endFill();
 		Love.handler.canvas.draw(_sprite);
+		gr.lineStyle();
 	}
 	
 	/**
@@ -637,12 +715,44 @@ class LoveGraphics
 		print(text, x, y, r, sx, sy, ox, oy, kx, ky);
 	}
 	
-	public function onExitFrame() {
-		//clear();
-		for (v in _batchMap.keys()) {
-			_batchMap.get(v).draw();
-			_batchMap.get(v).clear();
+	private function breakBatch():Void
+	{
+		//Lib.trace("breakBatch");
+		var flags:Int;
+		var item:RenderItem;
+		var l:Int = _renderItems.length;
+		
+		for (i in 0...l)
+		{
+			item = _renderItems[i];
+			flags = Tilesheet.TILE_TRANS_2x2;
+			if (item.isColored)
+			{
+				flags |= Tilesheet.TILE_RGB;
+			}
+			else if (item.isAlpha)
+			{
+				flags |= Tilesheet.TILE_ALPHA;
+			}
+			item.tilesheet.drawTiles(Love.graphics.gr, item.renderList, false, flags);
 		}
+		
+		var l:Int = _renderItems.length;
+		var item:RenderItem;
+		
+		for (i in 0...l)
+		{
+			item = _renderItems.pop();
+			item.clear();
+			RenderItemPool.push(item);
+		}
+		
+		_currentRenderItem = null;
+	}
+	
+	public function onExitFrame() {
+		//Lib.trace("onExitFrame");
+		breakBatch();
 	}
 	
 	// constructors
@@ -689,5 +799,9 @@ class LoveGraphics
 	 */
 	public function newQuad(x:Float = 0, y:Float = 0, width:Int = 1, height:Int = 1, sx:Int, sy:Int):Quad {
 		return new Quad(x, y, width, height, sx, sy);
+	}
+	
+	public function newParticleSystem(image:Image, ?buffer:Int = 1000):ParticleSystem {
+		return new ParticleSystem(image, buffer);
 	}
 }

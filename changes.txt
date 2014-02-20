@@ -19,8 +19,11 @@ HOVE 0.1.1
 	* Added Touch.getHeight().
 	* Added particular support for love.window.setMode().
 	
+	* SpriteBatch works now.
+	* love.graphics.draw() now uses batching.
+	* love.graphics.setColor() now accepts tables.
+	
 	* Fixed arguments for Image and SpriteBatch.
-	* SpriteBatch does work now.
 	* Fixed love.graphics.print() and love.graphics.printf();
 	* Fixed love.window.getFullscreen().
 	* Fixed Touch.getSize().

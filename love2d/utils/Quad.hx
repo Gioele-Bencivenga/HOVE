@@ -19,8 +19,8 @@ class Quad extends Object
 	private var _sx:Int;
 	private var _sy:Int;
 	
-	@:allow(love2d.utils.SpriteBatch) private var _halfWidth:Float;
-	@:allow(love2d.utils.SpriteBatch) private var _halfHeight:Float;
+	@:allow(love2d.utils) private var _halfWidth:Float;
+	@:allow(love2d.utils) private var _halfHeight:Float;
 	
 	public function new(x:Float = 0, y:Float = 0, width:Int = 1, height:Int = 1, ?sx:Int = -1, ?sy:Int = -1) 
 	{
