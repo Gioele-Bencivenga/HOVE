@@ -66,8 +66,10 @@ class ImageData extends Data
 	 */
 	public function getPixel(x:Int, y:Int):Color {
 		if (x > -1 && y > -1 && x < getWidth() && y < getHeight()) {
+			var c:Int = _bitmapData.getPixel32(x, y);
+			return {r: Love.handler.getRed(c), g: Love.handler.getGreen(c), b: Love.handler.getBlue(c), a: Love.handler.getAlpha(c)};
 		}
-		else Love.newError("The X and Y must be in range of [0, w - 1 or h - 1]");
+		else Love.newError("The X or Y is out of range.");
 		return null;
 	}
 	
