@@ -70,6 +70,17 @@ class Image extends Drawable
 		return _source;
 	}
 	
+	/**
+	 * Reloads the Image's contents from the ImageData or CompressedData used to create the image. 
+	 */
+	public function refresh() {
+		if (_source == null) {
+			Love.newError("Source data doesn't exist.");
+			return;
+		}
+		_bitmapData = _source._bitmapData.clone();
+	}
+	
 	override public function draw(?x:Float, ?y:Float, ?r:Float, ?sx:Float, ?sy:Float, ?ox:Float, ?oy:Float, ?kx:Float, ?ky:Float, ?quad:Quad) {
 		//Love.graphics.bitmap(_bitmapData, x, y, sx, sy, r, ox, oy, quad);
 		
