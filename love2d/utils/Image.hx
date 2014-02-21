@@ -23,8 +23,13 @@ class Image extends Drawable
 	{
 		super();
 		// to-do: ImageData, File
+		
+		// file path
 		if (Std.is(data, String)) {
 			_bitmapData = Assets.getBitmapData(data);
+		}
+		else if (Std.is(data, ImageData)) {
+			_bitmapData = data._bitmapData.clone();
 		}
 		
 		_quad = new Quad(0, 0, getWidth(), getHeight());

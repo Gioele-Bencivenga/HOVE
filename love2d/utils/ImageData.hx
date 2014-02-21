@@ -24,6 +24,10 @@ class ImageData extends Data
 		_bitmapData = new BitmapData(width, height);
 		_bufferRect = new Rectangle();
 		_bufferPoint = new Point();
+		
+		for (j in 0...height) {
+			for (i in 0...width) setPixel(i, j, 0, 0, 0, 0);
+		}
 	}
 	
 	/**
@@ -60,8 +64,8 @@ class ImageData extends Data
 	 * @param	a	The alpha component (0-255). 
 	 */
 	public function setPixel(x:Int, y:Int, r:Int, g:Int, b:Int, a:Int) {
-		if (x > -1 && y > -1 && x < getWidth() && y < getHeight()) _bitmapData.setPixel32(x, y, Love.handler.rgba(r, g, b, a));
-		else Love.newError("The X and Y must be in range of [0, w - 1 or h - 1]");
+		if (x < 0 || y < 0 && x > getWidth() - 1 || y > getHeight() - 1) Love.newError("The X or Y is out of range.");
+		else _bitmapData.setPixel32(x, y, Love.handler.rgba(r, g, b, a));
 	}
 	
 	/**
@@ -92,15 +96,15 @@ class ImageData extends Data
 	public function paste(source:ImageData, dx:Float, dy:Float, sx:Float, sy:Float, sw:Int, sh:Int) {
 		if (source == null) {
 			Love.newError("No source to copy data from.");
-			return null;
+			return;
 		}
 		if (dx < 0 || dx > getWidth() - 1 || dy < 0 || dy > getHeight() - 1) {
 			Love.newError("Invalid destination data.");
-			return null;
+			return;
 		}
 		if (sx < 0 || sx > getWidth() - 1 || sy < 0 || sy > getHeight() - 1 || sw < 0 || sx + sw > source.getWidth() - 1 || sh < 0 || sy + sh > source.getHeight() - 1) {
 			Love.newError("Invalid source data.");
-			return null;
+			return;
 		}
 		_bufferRect.setTo(sx, sy, sw, sh);
 		_bufferPoint.setTo(dx, dy);
@@ -115,12 +119,12 @@ class ImageData extends Data
 	public function mapPixel(pixelFunction:Int->Int->Int->Int->Int->Int->Color) {
 		if (pixelFunction == null) {
 			Love.newError("No function given.");
-			return null;
+			return;
 		}
 		for (j in 0...getHeight()) {
 			for (i in 0...getWidth()) {
 				var c:Int = _bitmapData.getPixel32(i, j);
-				var nc:Color = pixelFunction(i, j, Love.handler.getRed(c), Love.handler.getGreen(c), Love.handler.getBlue(b), Love.handler.getAlpha(b));
+				var nc:Color = pixelFunction(i, j, Love.handler.getRed(c), Love.handler.getGreen(c), Love.handler.getBlue(c), Love.handler.getAlpha(c));
 				if (nc != null) setPixel(i, j, nc.r, nc.g, nc.b, nc.a);
 			}
 		}
