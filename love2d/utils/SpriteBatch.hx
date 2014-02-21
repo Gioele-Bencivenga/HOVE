@@ -118,8 +118,7 @@ class SpriteBatch extends Drawable
 	 * @param	?ky	Shear factor (y-axis). 
 	 */
 	public function add(quad:Quad = null, x:Float = 0, y:Float = 0, r:Float = 0, sx:Float = 1, sy:Float = 1, ox:Float = 0, oy:Float = 0, kx:Float = 0, ky:Float = 0) {
-		
-		if (_numQuads >= _size) return;
+		if (_numQuads >= _size || _usageHint == "static") return;
 		
 		if (quad == null)	quad = _image._quad;
 		
@@ -230,6 +229,7 @@ class SpriteBatch extends Drawable
 	 * @param	?quad	The Quad used on the image of the batch. 
 	 */
 	public function set(id:Int, x:Float, y:Float, ?r:Float = 0, ?sx:Float = 1, ?sy:Float = 1, ?ox:Float = 0, ?oy:Float = 0, ?kx:Float = 0, ?ky:Float = 0, ?quad:Quad = null) {
+		if (_usageHint == "static") return;
 		
 		if (id < _numQuads && id >= 0) {
 			if (quad == null)	quad = _image._quad;
