@@ -90,6 +90,18 @@ class ImageData extends Data
 	 * @param	sh	Source height. 
 	 */
 	public function paste(source:ImageData, dx:Float, dy:Float, sx:Float, sy:Float, sw:Int, sh:Int) {
+		if (source == null) {
+			Love.newError("No source to copy data from.");
+			return null;
+		}
+		if (dx < 0 || dx > getWidth() - 1 || dy < 0 || dy > getHeight() - 1) {
+			Love.newError("Invalid destination data.");
+			return null;
+		}
+		if (sx < 0 || sx > getWidth() - 1 || sy < 0 || sy > getHeight() - 1 || sw < 0 || sx + sw > source.getWidth() - 1 || sh < 0 || sy + sh > source.getHeight() - 1) {
+			Love.newError("Invalid source data.");
+			return null;
+		}
 		_bufferRect.setTo(sx, sy, sw, sh);
 		_bufferPoint.setTo(dx, dy);
 		_bitmapData.copyPixels(source._bitmapData, _bufferRect, _bufferPoint);
