@@ -2,6 +2,7 @@ package love2d.utils;
 import flash.display.Bitmap;
 import flash.display.BitmapData;
 import haxe.ds.ObjectMap;
+import love2d.Handler.Size;
 import love2d.Love;
 import openfl.Assets;
 import openfl.display.Tilesheet;
@@ -57,7 +58,7 @@ class Image extends Drawable
 	 * Gets the width and height of the Image. 
 	 * @return	A table that contains width and height;
 	 */
-	inline public function getDimensions():Dynamic {
+	inline public function getDimensions():Size {
 		return {width: getWidth(), height: getHeight()};
 	}
 	
