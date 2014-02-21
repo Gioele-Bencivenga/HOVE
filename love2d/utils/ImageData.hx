@@ -1,5 +1,7 @@
 package love2d.utils;
 import flash.display.BitmapData;
+import flash.geom.Point;
+import flash.geom.Rectangle;
 import love2d.Handler.Color;
 import love2d.Handler.Size;
 import love2d.Love;
@@ -10,7 +12,9 @@ import love2d.Love;
 
 class ImageData extends Data
 {
-	private var _bitmapData:BitmapData;
+	@:allow(love2d.utils) private var _bitmapData:BitmapData;
+	private var _bufferRect:Rectangle;
+	private var _bufferPoint:Point;
 	
 	public function new(width:Int, height:Int)
 	{
@@ -18,6 +22,8 @@ class ImageData extends Data
 		// to-do: from File, FileData
 		
 		_bitmapData = new BitmapData(width, height);
+		_bufferRect = new Rectangle();
+		_bufferPoint = new Point();
 	}
 	
 	/**
@@ -71,6 +77,22 @@ class ImageData extends Data
 		}
 		else Love.newError("The X or Y is out of range.");
 		return null;
+	}
+	
+	/**
+	 * Paste into ImageData from another source ImageData. 
+	 * @param	source	Source ImageData from which to copy. 
+	 * @param	dx	Destination top-left position on x-axis. 
+	 * @param	dy	Destination top-left position on y-axis. 
+	 * @param	sx	Source top-left position on x-axis. 
+	 * @param	sy	Source top-left position on y-axis. 
+	 * @param	sw	Source width. 
+	 * @param	sh	Source height. 
+	 */
+	public function paste(source:ImageData, dx:Float, dy:Float, sx:Float, sy:Float, sw:Int, sh:Int) {
+		_bufferRect.setTo(sx, sy, sw, sh);
+		_bufferPoint.setTo(dx, dy);
+		_bitmapData.copyPixels(source._bitmapData, _bufferRect, _bufferPoint);
 	}
 	
 	/**

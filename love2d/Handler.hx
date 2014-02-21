@@ -346,10 +346,31 @@ class Handler extends Sprite
 		return (r & 0xFF) << 16 | (g & 0xFF) << 8 | (b & 0xFF);
 	}
 	
+	// Thank you, HaxeFlixel! :)
 	public function rgba(r:Int, g:Int, b:Int, a:Int):Int {
-		return (r & 0xFF) << 16 | (g & 0xFF) << 8 | (b & 0xFF) | a;
+		return a << 24 | r << 16 | g << 8 | b;
 	}
 	
+	inline public function getAlpha(color:Int):Int
+	{
+		return (color >> 24) & 0xFF;
+	}
+
+	inline public function getRed(color:Int):Int
+	{
+		return color >> 16 & 0xFF;
+	}
+
+	inline public function getGreen(color:Int):Int
+	{
+		return color >> 8 & 0xFF;
+	}
+	
+	inline public function getBlue(color:Int):Int
+	{
+		return color & 0xFF;
+	}
+
 	public function sign(n:Float):Int {
 		if (n == 0) return 0;
 		return (n < 0)? -1:1;
