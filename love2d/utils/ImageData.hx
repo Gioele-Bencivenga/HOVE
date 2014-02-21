@@ -121,6 +121,7 @@ class ImageData extends Data
 			Love.newError("No function given.");
 			return;
 		}
+		_bitmapData.lock();
 		for (j in 0...getHeight()) {
 			for (i in 0...getWidth()) {
 				var c:Int = _bitmapData.getPixel32(i, j);
@@ -128,5 +129,6 @@ class ImageData extends Data
 				if (nc != null) setPixel(i, j, nc.r, nc.g, nc.b, nc.a);
 			}
 		}
+		_bitmapData.unlock();
 	}
 }
