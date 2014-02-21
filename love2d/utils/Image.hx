@@ -14,6 +14,7 @@ import love2d.utils.SpriteBatch;
 class Image extends Drawable
 {
 	@:allow(love2d) private var _bitmapData:BitmapData;
+	private var _source:Dynamic = null;
 	
 	private var _tilesheet:TilesheetExt;
 	
@@ -30,6 +31,7 @@ class Image extends Drawable
 		}
 		else if (Std.is(data, ImageData)) {
 			_bitmapData = data._bitmapData.clone();
+			_source = data;
 		}
 		
 		_quad = new Quad(0, 0, getWidth(), getHeight());
@@ -57,6 +59,14 @@ class Image extends Drawable
 	 */
 	inline public function getDimensions():Dynamic {
 		return {width: getWidth(), height: getHeight()};
+	}
+	
+	/**
+	 * Gets the original ImageData or CompressedData used to create the Image. 
+	 * @return	The original data used to create the Image
+	 */
+	inline public function getData():Data {
+		return _source;
 	}
 	
 	override public function draw(?x:Float, ?y:Float, ?r:Float, ?sx:Float, ?sy:Float, ?ox:Float, ?oy:Float, ?kx:Float, ?ky:Float, ?quad:Quad) {
