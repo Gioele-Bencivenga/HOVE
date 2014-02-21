@@ -109,8 +109,20 @@ class ImageData extends Data
 	
 	/**
 	 * Transform an image by applying a function to every pixel. 
+	 * Format: x, y, r, g, b, a
 	 * @param	pixelFunction	Function parameter to apply to every pixel. 
 	 */
 	public function mapPixel(pixelFunction:Int->Int->Int->Int->Int->Int->Color) {
+		if (pixelFunction == null) {
+			Love.newError("No function given.");
+			return null;
+		}
+		for (j in 0...getHeight()) {
+			for (i in 0...getWidth()) {
+				var c:Int = _bitmapData.getPixel32(i, j);
+				var nc:Color = pixelFunction(i, j, Love.handler.getRed(c), Love.handler.getGreen(c), Love.handler.getBlue(b), Love.handler.getAlpha(b));
+				if (nc != null) setPixel(i, j, nc.r, nc.g, nc.b, nc.a);
+			}
+		}
 	}
 }
