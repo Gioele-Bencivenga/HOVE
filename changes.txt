@@ -3,36 +3,43 @@ HOVE 0.1.1
 
 	Released: N/A
 	
-	* Basic support for love.physics. (WHOA!)
-	* Basic support for love.filesystem.
-	* Added love.graphics.getWidth().
-	* Added love.graphics.getHeight().
-	* Added love.graphics.getDimensions().
-	* Added love.graphics.isSupported().
-	* Added love.graphics.setLineStyle().
-	* Added love.graphics.getLineStyle().
-	* Added love.window.getDesktopDimensions().
-	* Added love.system.getProcessorCount().
-	* Added love.system.setClipboardText() for Flash.
-	* Added love.touchmove.
-	* Added Touch.getWidth().
-	* Added Touch.getHeight().
-	* Added particular support for love.window.setMode().
-	* Added support for SpriteBatchUsage.
+	* Basic support for love.physics (WHOA!)
+	* Basic support for love.filesystem
+	* Added love.graphics.getWidth()
+	* Added love.graphics.getHeight()
+	* Added love.graphics.getDimensions()
+	* Added love.graphics.isSupported()
+	* Added love.graphics.setLineStyle()
+	* Added love.graphics.getLineStyle()
+	* Added love.window.getDesktopDimensions()
+	* Added love.system.getProcessorCount()
+	* Added love.system.setClipboardText() for Flash
+	* Added love.touchmove
+	* Added Touch.getWidth()
+	* Added Touch.getHeight()
+	* Added support for ImageData as source data for Image
+	* Added ImageData.setPixel()
+	* Added ImageData.getPixel()
+	* Added ImageData.paste()
+	* Added ImageData.mapPixel()
+	* Added Image.getData()
+	* Added Image.refresh()
+	* Added particular support for love.window.setMode()
+	* Added support for SpriteBatchUsage
 	
-	* SpriteBatch works now.
-	* love.graphics.draw() now uses batching.
-	* love.graphics.setColor() now accepts tables.
+	* SpriteBatch works now
+	* love.graphics.draw() now uses batching
+	* love.graphics.setColor() now accepts tables
 	
-	* Fixed arguments for Image and SpriteBatch.
-	* Fixed love.graphics.print() and love.graphics.printf();
-	* Fixed love.window.getFullscreen().
-	* Fixed Touch.getSize().
-	* Improved documentation for love.graphics.
-	* Lots of minor bugfixes.
+	* Fixed arguments for Image and SpriteBatch
+	* Fixed love.graphics.print() and love.graphics.printf()
+	* Fixed love.window.getFullscreen()
+	* Fixed Touch.getSize()
+	* Improved documentation for love.graphics
+	* Lots of minor bugfixes
 	
-	* Removed Font.getFlashFont().
-	* Removed Font.getSize().
+	* Removed Font.getFlashFont()
+	* Removed Font.getSize()
 
 HOVE 0.1.0
 ------------------------
