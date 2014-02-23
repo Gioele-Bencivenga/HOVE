@@ -1,4 +1,5 @@
 package love2d.utils;
+import flash.ui.Keyboard;
 import love2d.Love;
 
 /**
@@ -110,8 +111,23 @@ class LoveKeyboard
 		_setMap(121, "f10");
 		_setMap(122, "f11");
 		_setMap(123, "f12");
+		_setMap(124, "f13");
+		_setMap(125, "f14");
+		_setMap(126, "f15");
+		_setMap(127, "f16");
+		_setMap(128, "f17");
+		_setMap(129, "f18");
 		_setMap(32, " ");
+		_setMap(189, "-");
 		
+		_setMap(Keyboard.KEYNAME_PRINTSCREEN, "printscreen");
+		_setMap(Keyboard.KEYNAME_SYSREQ, "sysreq");
+		_setMap(Keyboard.KEYNAME_UNDO, "undo");
+		
+		#if !display
+		_setMap(Keyboard.HELP, "help");
+		_setMap(Keyboard.MENU, "menu");
+		#end
 	}
 	
 	/**
