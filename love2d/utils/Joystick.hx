@@ -10,6 +10,7 @@ class Joystick extends Object
 	private var _id:Int;
 	@:allow(love2d.Handler) private var _buttons:Array<Bool>;
 	@:allow(love2d.Handler) private var _axes:Array<Int>;
+	@:allow(love2d.Handler) private var _name:String;
 	
 	public function new(id:Int) 
 	{
@@ -18,6 +19,7 @@ class Joystick extends Object
 		_id = id;
 		_buttons = [];
 		_axes = [];
+		_name = "Unknown";
 	}
 	
 	/**
@@ -137,7 +139,7 @@ class Joystick extends Object
 	 * @return	The name of the joystick. 
 	 */
 	inline public function getName():String {
-		return "unknown";
+		return _name;
 	}
 	
 	/**

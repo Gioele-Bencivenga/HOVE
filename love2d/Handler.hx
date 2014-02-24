@@ -116,9 +116,17 @@ class Handler extends Sprite
 			an = 0;
 			#end
 			
-			j._axes = [for(it in 0...an) 0];
+			j._axes = [for (it in 0...an) 0];
+			
+			var name:String; // name
+			#if (cpp || neko || flash)
+			name = "Unknown";
+			#elseif (html5)
+			name = g.id;
+			#end
+			j._name = name;
 		}
-		
+
 		Lib.current.stage.addChild(this);
 		
 		keys = [for (i in 0...255) false];
@@ -322,7 +330,6 @@ class Handler extends Sprite
 			   
 				if (Love.joystickaxis != null) Love.joystickaxis(joysticks[e.device], i, Math.round(e.axis[i]), e.device);
 				joysticks[e.device]._axes[i] = Math.round(e.axis[i]);
-				joysticks[e.device]._axisCount = numAxis;
 			}
 	
 		});
