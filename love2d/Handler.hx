@@ -9,6 +9,10 @@ import love2d.Handler.FloatColor;
 #if !html5
 import flash.events.AccelerometerEvent;
 import flash.sensors.Accelerometer;
+#else
+import js.Browser;
+import js.html.Gamepad;
+import js.html.GamepadList;
 #end
 import flash.events.Event;
 import flash.events.FocusEvent;
@@ -51,8 +55,7 @@ class Handler extends Sprite
 	public var dt:Float;
 	public var hasFocus:Bool = true;
 	public var cursor:Cursor;
-	public var joysticks:Array<Joy>;
-	public var realJoysticks:Array<Joystick>;
+	public var joysticks:Array<Joystick>;
 	public var fps:Int = 0;
 	
 	private var _timer:Int = 0;
@@ -60,24 +63,61 @@ class Handler extends Sprite
 	private var _point:flash.geom.Point;
 	private var _joy:Joystick;
 	
+	#if html5
+	private var joyList:Array<Gamepad>;
+	#end
+	
 	public function new()
 	{
 		super();
 		
 		joysticks = [];
-		realJoysticks = [];
 		
 		_rect = new Rectangle();
 		_point = new flash.geom.Point();
 		
 		_joy = new Joystick(0);
 		
-		for (i in 0...4) {
-			var j:Joy = {buttons: [for(it in 0...20) false], axes: [for(it in 0...4) 0], axisCount: 0};
+		var n:Int;
+		#if (cpp || neko)
+		n = 4;
+		#elseif (html5)
+		joyList = Browser.navigator.getGamepads();
+		n = joyList.length;
+		#elseif (flash)
+		n = 0;
+		#end
+		
+		for (i in 0...n) {
+			var j:Joystick = new Joystick(i);
 			joysticks.push(j);
 			
-			// real joysticks
-			realJoysticks.push(new Joystick(i));
+			#if html5
+			var g:Gamepad = joyList[i];
+			#end
+			
+			var bn:Int; // buttons
+			#if (cpp || neko)
+			bn = 20;
+			#elseif (html5)
+			bn = g.buttons.length;
+			#elseif (flash)
+			bn = 0;
+			#end
+			
+			j._buttons = [for (it in 0...bn) false];
+			
+			var an:Int; // axes
+			#if (cpp || neko)
+			an = 4;
+			#elseif (html5)
+			an = g.axes.length;
+			#elseif (flash)
+			an = 0;
+			#end
+			j._axisCount = an;
+			
+			j._axes = [];//[for(it in 0...an) 0];
 		}
 		
 		Lib.current.stage.addChild(this);
@@ -272,7 +312,7 @@ class Handler extends Sprite
 		#end
 		
 		// joystick
-		#if (windows || linux || mac || (android && openfl_ouya))
+		#if (cpp || neko)
 		// axismove
 		stage.addEventListener(JoystickEvent.AXIS_MOVE, function(e:JoystickEvent) {
 			var numAxis:Int = e.axis.length;
@@ -281,21 +321,23 @@ class Handler extends Sprite
 			{
 				var axis:Float = e.axis[i];
 			   
-				if (Love.joystickaxis != null) Love.joystickaxis(realJoysticks[e.device], i, Math.round(e.axis[i]), e.device);
-				joysticks[e.device].axes[i] = Math.round(e.axis[i]);
+				if (Love.joystickaxis != null) Love.joystickaxis(joysticks[e.device], i, Math.round(e.axis[i]), e.device);
+				joysticks[e.device]._axes[i] = Math.round(e.axis[i]);
+				joysticks[e.device]._axisCount = numAxis;
 			}
+	
 		});
 		
 		// buttondown
 		stage.addEventListener(JoystickEvent.BUTTON_DOWN, function(e:JoystickEvent) {
-			if (Love.joystickpressed != null) Love.joystickpressed(realJoysticks[e.device], e.id);
-			joysticks[e.device].buttons[e.id] = true;
+			if (Love.joystickpressed != null) Love.joystickpressed(joysticks[e.device], e.id);
+			joysticks[e.device]._buttons[e.id] = true;
 		});
 		
 		// buttonup
 		stage.addEventListener(JoystickEvent.BUTTON_UP, function(e:JoystickEvent) {
-			if (Love.joystickpressed != null) Love.joystickreleased(realJoysticks[e.device], e.id);
-			joysticks[e.device].buttons[e.id] = false;
+			if (Love.joystickpressed != null) Love.joystickreleased(joysticks[e.device], e.id);
+			joysticks[e.device]._buttons[e.id] = false;
 		});
 			
 		// hatmove
@@ -329,6 +371,8 @@ class Handler extends Sprite
 			if (Love.focus != null) Love.focus(false);
 			hasFocus = false;
 		});
+		
+		//
 		
 		// close
 		stage.addEventListener(Event.CLOSE, function(e:Event) {
@@ -412,12 +456,6 @@ typedef Size = {
 typedef Range = {
 	min:Float,
 	max:Float
-}
-
-typedef Joy = {
-	buttons:Array<Bool>,
-	axes:Array<Int>,
-	axisCount:Int
 }
 
 typedef Viewport = {

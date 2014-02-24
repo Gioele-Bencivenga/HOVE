@@ -120,14 +120,8 @@ class LoveKeyboard
 		_setMap(32, " ");
 		_setMap(189, "-");
 		
-		_setMap(Keyboard.KEYNAME_PRINTSCREEN, "printscreen");
-		_setMap(Keyboard.KEYNAME_SYSREQ, "sysreq");
-		_setMap(Keyboard.KEYNAME_UNDO, "undo");
-		
-		#if !display
-		_setMap(Keyboard.HELP, "help");
-		_setMap(Keyboard.MENU, "menu");
-		#end
+		/*_setMap(Keyboard.HELP, "help");
+		_setMap(Keyboard.MENU, "menu");*/
 	}
 	
 	/**

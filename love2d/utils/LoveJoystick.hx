@@ -40,7 +40,7 @@ class LoveJoystick
 	 * @return The list of currently connected Joysticks. 
 	 */
 	inline public function getJoysticks():Array<Joystick> {
-		return Love.handler.realJoysticks;
+		return Love.handler.joysticks;
 	}
 	
 	/**
@@ -48,7 +48,7 @@ class LoveJoystick
 	 * @return The number of connected joysticks. 
 	 */
 	inline public function getJoystickCount():Int {
-		return Love.handler.realJoysticks.length;
+		return Love.handler.joysticks.length;
 	}
 	
 	/**

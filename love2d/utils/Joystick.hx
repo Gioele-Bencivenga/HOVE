@@ -8,12 +8,18 @@ import love2d.Love;
 class Joystick extends Object
 {
 	private var _id:Int;
+	@:allow(love2d.Handler) private var _buttons:Array<Bool>;
+	@:allow(love2d.Handler) private var _axes:Array<Int>;
+	@:allow(love2d.Handler) private var _axisCount:Int;
 	
 	public function new(id:Int) 
 	{
 		super();
 		
 		_id = id;
+		_buttons = [];
+		_axes = [];
+		_axisCount = 0;
 	}
 	
 	/**
@@ -38,7 +44,7 @@ class Joystick extends Object
 	 * @return	Current value of the axis. 
 	 */
 	inline public function getAxis(axis:Int):Int {
-		return Love.handler.joysticks[_id].axes[axis];
+		return _axes[axis];
 	}
 	
 	/**
@@ -46,7 +52,7 @@ class Joystick extends Object
 	 * @return An array containing all the axes.
 	 */
 	inline public function getAxes():Array<Int> {
-		return Love.handler.joysticks[_id].axes;
+		return _axes;
 	}
 	
 	/**
@@ -55,7 +61,7 @@ class Joystick extends Object
 	 * @return	True if any supplied button is down, false if not. 
 	 */
 	inline public function isDown(button:Int):Bool {
-		return Love.handler.joysticks[_id].buttons[button];
+		return _buttons[button];
 	}
 	
 	/**
@@ -72,7 +78,7 @@ class Joystick extends Object
 	 * @return	The number of axes available. 
 	 */
 	inline public function getAxisCount():Int {
-		return Love.handler.joysticks[_id].axisCount;
+		return _axisCount;
 	}
 	
 	// to-do
@@ -99,7 +105,7 @@ class Joystick extends Object
 	 * @return	The number of buttons available. 
 	 */
 	inline public function getButtonCount():Int {
-		return 20;
+		return _buttons.length;
 	}
 	
 	/**
