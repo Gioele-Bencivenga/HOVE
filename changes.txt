@@ -14,6 +14,7 @@ HOVE 0.2
 	* Added love.window.getDesktopDimensions()
 	* Added love.system.getProcessorCount()
 	* Added love.system.setClipboardText() for Flash
+	* Added love.system.getPowerInfo() for HTML5
 	* Added love.touchmove
 	* Added Touch.getWidth()
 	* Added Touch.getHeight()
