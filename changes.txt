@@ -1,4 +1,4 @@
-HOVE 0.1.1
+HOVE 0.2
 -----------------------
 
 	Released: N/A
@@ -24,6 +24,7 @@ HOVE 0.1.1
 	* Added ImageData.mapPixel()
 	* Added Image.getData()
 	* Added Image.refresh()
+	* Added Joystick.getName()
 	* Added particular support for love.window.setMode()
 	* Added support for SpriteBatchUsage
 	
@@ -36,6 +37,7 @@ HOVE 0.1.1
 	* Fixed love.window.getFullscreen()
 	* Fixed Touch.getSize()
 	* Improved documentation for love.graphics
+	* Improved joystick handling
 	* Lots of minor bugfixes
 	
 	* Removed Font.getFlashFont()
