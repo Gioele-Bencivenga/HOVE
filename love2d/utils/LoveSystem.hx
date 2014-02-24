@@ -74,7 +74,7 @@ class LoveSystem
 		if (Browser.navigator.battery.level == 1) state = "nobattery";
 		if (Browser.navigator.battery.chargingTime == 0) state = "charged";
 		
-		return {state: state, percent: Browser.navigator.battery.level * 100, seconds: Browser.navigator.battery.dischargingTime};
+		return {state: state, percent: Math.round(Browser.navigator.battery.level * 100), seconds: Browser.navigator.battery.dischargingTime};
 		#end
 		return {state: "unknown", percent: 0, seconds: 0};
 	}

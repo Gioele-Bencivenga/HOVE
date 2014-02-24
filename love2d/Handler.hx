@@ -64,7 +64,7 @@ class Handler extends Sprite
 	private var _joy:Joystick;
 	
 	#if html5
-	private var joyList:Array<Gamepad>;
+	private var joyList:GamepadList;
 	#end
 	
 	public function new()
@@ -82,7 +82,7 @@ class Handler extends Sprite
 		#if (cpp || neko)
 		n = 4;
 		#elseif (html5)
-		joyList = Browser.navigator.getGamepads();
+		joyList = untyped navigator.webkitGetGamepads();
 		n = joyList.length;
 		#elseif (flash)
 		n = 0;
@@ -97,10 +97,8 @@ class Handler extends Sprite
 			#end
 			
 			var bn:Int; // buttons
-			#if (cpp || neko)
+			#if (cpp || neko || html5)
 			bn = 20;
-			#elseif (html5)
-			bn = g.buttons.length;
 			#elseif (flash)
 			bn = 0;
 			#end
@@ -108,10 +106,8 @@ class Handler extends Sprite
 			j._buttons = [for (it in 0...bn) false];
 			
 			var an:Int; // axes
-			#if (cpp || neko)
+			#if (cpp || neko || html5)
 			an = 4;
-			#elseif (html5)
-			an = g.axes.length;
 			#elseif (flash)
 			an = 0;
 			#end
@@ -122,9 +118,16 @@ class Handler extends Sprite
 			#if (cpp || neko || flash)
 			name = "Unknown";
 			#elseif (html5)
-			name = g.id;
+			name = "x";
 			#end
 			j._name = name;
+			
+			var guid:Int; // GUID
+			#if (cpp || neko || html5)
+			guid = 0;
+			#elseif (flash)
+			guid = -1;
+			#end
 		}
 
 		Lib.current.stage.addChild(this);
@@ -153,6 +156,20 @@ class Handler extends Sprite
 					canvas.copyPixels(img._bitmapData, _rect, _point);
 				}
 			}
+			
+			// joysticks
+			#if html5
+			for (i in 0...joysticks.length) {
+				var g:Gamepad = joyList[i];
+				var j:Joystick = joysticks[i];
+				
+				if (g != null) j._buttons = [for (it in 0...g.buttons.length) (g.buttons[it] > 0)?true:false];
+				if (g != null) j._axes = [for (it in 0...g.axes.length) Std.int(g.axes[it])];
+				
+				if (j._name == "x" && g != null) j._name = g.id;
+				if (g != null) j._guid = g.index;
+			}
+			#end
 		});
 		
 		// exitframe

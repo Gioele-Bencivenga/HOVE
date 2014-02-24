@@ -11,6 +11,7 @@ class Joystick extends Object
 	@:allow(love2d.Handler) private var _buttons:Array<Bool>;
 	@:allow(love2d.Handler) private var _axes:Array<Int>;
 	@:allow(love2d.Handler) private var _name:String;
+	@:allow(love2d.Handler) private var _guid:Int;
 	
 	public function new(id:Int) 
 	{
@@ -20,6 +21,7 @@ class Joystick extends Object
 		_buttons = [];
 		_axes = [];
 		_name = "Unknown";
+		_guid = 0;
 	}
 	
 	/**
@@ -35,7 +37,7 @@ class Joystick extends Object
 	 * @return	The Joystick type's OS-dependent unique identifier. 
 	 */
 	inline public function getGUID():Int {
-		return _id;
+		return _guid;
 	}
 	
 	/**
