@@ -10,7 +10,6 @@ class Joystick extends Object
 	private var _id:Int;
 	@:allow(love2d.Handler) private var _buttons:Array<Bool>;
 	@:allow(love2d.Handler) private var _axes:Array<Int>;
-	@:allow(love2d.Handler) private var _axisCount:Int;
 	
 	public function new(id:Int) 
 	{
@@ -19,7 +18,6 @@ class Joystick extends Object
 		_id = id;
 		_buttons = [];
 		_axes = [];
-		_axisCount = 0;
 	}
 	
 	/**
@@ -78,7 +76,7 @@ class Joystick extends Object
 	 * @return	The number of axes available. 
 	 */
 	inline public function getAxisCount():Int {
-		return _axisCount;
+		return _axes.length;
 	}
 	
 	// to-do

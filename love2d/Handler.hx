@@ -115,9 +115,8 @@ class Handler extends Sprite
 			#elseif (flash)
 			an = 0;
 			#end
-			j._axisCount = an;
 			
-			j._axes = [];//[for(it in 0...an) 0];
+			j._axes = [for(it in 0...an) 0];
 		}
 		
 		Lib.current.stage.addChild(this);
