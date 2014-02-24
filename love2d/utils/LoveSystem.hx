@@ -2,8 +2,11 @@ package love2d.utils;
 import flash.desktop.Clipboard;
 import flash.desktop.ClipboardFormats;
 import flash.system.System;
+import love2d.utils.LoveSystem.PowerInfo;
 #if !html5
 import flash.sensors.Accelerometer;
+#else
+import js.Browser;
 #end
 
 /**
@@ -60,6 +63,23 @@ class LoveSystem
 	}
 	
 	/**
+	 * Gets information about the system's power supply. 
+	 * @return The basic state of the power supply; percentage of battery life left, between 0 and 100;	seconds of battery life left.
+	 */
+	public function getPowerInfo():PowerInfo {
+		#if html5
+		// TO-DO: "battery" state
+		var state:String = "unknown";
+		if (Browser.navigator.battery.charging) state = "charging";
+		if (Browser.navigator.battery.level == 1) state = "nobattery";
+		if (Browser.navigator.battery.chargingTime == 0) state = "charged";
+		
+		return {state: state, percent: Browser.navigator.battery.level * 100, seconds: Browser.navigator.battery.dischargingTime};
+		#end
+		return {state: "unknown", percent: 0, seconds: 0};
+	}
+	
+	/**
 	 * Gets the current operating system.
 	 * @return The current operating system.
 	 */
@@ -80,4 +100,10 @@ class LoveSystem
 		#end
 		;
 	}
+}
+
+typedef PowerInfo = {
+	state:String,
+	percent:Int,
+	seconds:Float
 }
