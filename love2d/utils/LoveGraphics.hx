@@ -29,47 +29,8 @@ import love2d.utils.SpriteBatch;
 class LoveGraphics
 {
 	private static var RenderItemPool:Array<RenderItem> = [];
-	
 	private var _renderItems:Array<RenderItem>;
-	
 	private var _currentRenderItem:RenderItem;
-	
-	private static function getRenderItemFromPool():RenderItem
-	{
-		return (RenderItemPool.length > 0) ? RenderItemPool.pop() : new RenderItem();
-	}
-	
-	@:allow(love2d) private function getRenderItem(tilesheet:TilesheetExt, alpha:Bool = false, colored:Bool = false):RenderItem
-	{
-		if (_currentRenderItem == null || (_currentRenderItem.isAlpha != alpha || _currentRenderItem.isColored != colored || _currentRenderItem.tilesheet != tilesheet))
-		{
-			_currentRenderItem = getRenderItemFromPool();
-			_currentRenderItem.isColored = colored;
-			_currentRenderItem.isAlpha = alpha;
-			
-			if (colored && alpha)
-			{
-				_currentRenderItem.numElementsPerQuad = RenderItem.NUM_ELEMENTS_RGB_ALPHA;
-			}
-			else if (colored && !alpha)
-			{
-				_currentRenderItem.numElementsPerQuad = RenderItem.NUM_ELEMENTS_RGB;
-			}
-			else if (!colored && alpha)
-			{
-				_currentRenderItem.numElementsPerQuad = RenderItem.NUM_ELEMENTS_ALPHA;
-			}
-			else
-			{
-				_currentRenderItem.numElementsPerQuad = RenderItem.NUM_ELEMENTS_NO_RGB_ALPHA;
-			}
-			
-			_currentRenderItem.tilesheet = tilesheet;
-			_renderItems.push(_currentRenderItem);
-		}
-		
-		return _currentRenderItem;
-	}
 	
 	private var _sprite:Sprite;
 	private var _bm:Bitmap;
@@ -84,10 +45,13 @@ class LoveGraphics
 	private var _lineWidth:Float = 1;
 	private var _jointStyle:JointStyle;
 	private var _lineStyle:String;
+	private var _canvas:Canvas;
+	
 	private var _featuresMap:Map<String, Bool>;
 	@:allow(love2d.utils) private var _batchMap:Map<Image, SpriteBatch>;
 	
 	@:allow(love2d.utils.SpriteBatch) private var gr:Graphics;
+	private var _asprite:Sprite;
 	
 	// params
 	private var _angle:Float;
@@ -102,12 +66,16 @@ class LoveGraphics
 	{
 		_sprite = new Sprite();
 		gr = _sprite.graphics;
+		
+		_asprite = new Sprite();
+		
 		_bm = new Bitmap();
 		_mat = new Matrix();
 		_jointStyle = JointStyle.ROUND;
 		_bufferRect = new Rectangle();
 		_colorTransform = new ColorTransform();
 		_textFormat = new TextFormat();
+		_canvas = null;
 		
 		_textField = new TextField();
 		_textField.text = "";
@@ -118,7 +86,9 @@ class LoveGraphics
 		_textField.autoSize = TextFieldAutoSize.LEFT;
 		
 		_sprite.addChild(_bm);
+		_asprite.addChild(_bm);
 		Lib.current.stage.addChild(_sprite);
+		Lib.current.stage.addChild(_asprite);
 		
 		// graphics features
 		_featuresMap = new Map();
@@ -135,8 +105,6 @@ class LoveGraphics
 		_lineStyle = "smooth";
 		
 		_renderItems = [];
-		
-		
 		
 		// TODO: remove it later
 		_batchMap = new Map();
@@ -204,7 +172,11 @@ class LoveGraphics
 	 */
 	inline public function clear() {
 		gr.clear();
-		var c = Love.handler.canvas;
+		
+		var c:BitmapData;
+		if (_canvas == null) c = Love.handler.canvas;
+		else c = _canvas._bitmapData;
+		
 		c.fillRect(c.rect, 0xFF000000 | Love.handler.intBgColor);
 	}
 	
@@ -216,11 +188,11 @@ class LoveGraphics
 	 * It also sets both the point and line drawing modes to smooth and their sizes to 1.0. 
 	 */
 	public function reset() {
-		setColor();
+		/*setColor();
 		setBackgroundColor(0, 0, 0, 255);
 		setBlendMode("alpha");
 		_pointSize = _lineWidth = 1;
-		_lineStyle = "smooth";
+		_lineStyle = "smooth";*/
 	}
 	
 	/**
@@ -381,6 +353,24 @@ class LoveGraphics
 	}
 	
 	/**
+	 * Sets the render target to a specified Canvas.
+	 * All drawing operations until the next love.graphics.setCanvas call
+	 * will be redirected to the Canvas and not shown on the screen. 
+	 * @param	?canvas	The new target. 
+	 */
+	inline public function setCanvas(?canvas:Canvas = null) {
+		_canvas = canvas;
+	}
+	
+	/**
+	 * Gets the current target Canvas. 
+	 * @return	The Canvas set by setCanvas. Returns null if drawing to the real screen. 
+	 */
+	inline public function getCanvas():Canvas {
+		return _canvas;
+	}
+	
+	/**
 	 * Set an already-loaded Font as the current font or create and load a new one from the file and size. 
 	 * @param	font	The Font object to use. 
 	 */
@@ -484,7 +474,12 @@ class LoveGraphics
 			gr.drawRect(x, y, width, height);
 			gr.endFill();
 		}
-		Love.handler.canvas.draw(_sprite);
+		
+		var rt:BitmapData;
+		if (_canvas == null) rt = Love.handler.canvas;
+		else rt = _canvas._bitmapData;
+		//
+		rt.draw(_sprite);
 	}
 	
 	/**
@@ -512,7 +507,12 @@ class LoveGraphics
 			gr.drawCircle(x, y, radius);
 			gr.endFill();
 		}
-		Love.handler.canvas.draw(_sprite);
+		
+		var rt:BitmapData;
+		if (_canvas == null) rt = Love.handler.canvas;
+		else rt = _canvas._bitmapData;
+		//
+		rt.draw(_sprite);
 	}
 	
 	/**
@@ -532,7 +532,6 @@ class LoveGraphics
 	 * @param	?y2	The position of second point on the y-axis. 
 	 */
 	public function line(x1:Dynamic, ?y1:Float = null, ?x2:Float = null, ?y2:Float = null) {
-		
 		breakBatch();
 		
 		Lib.trace("line");
@@ -568,11 +567,13 @@ class LoveGraphics
 				i += 2;
 			}*/
 		}
-	//	#if (flash || js)
-		Love.handler.canvas.draw(_sprite);
-	//	#else
 		
-	//	#end
+		var rt:BitmapData;
+		if (_canvas == null) rt = Love.handler.canvas;
+		else rt = _canvas._bitmapData;
+		//
+		rt.draw(_sprite);
+		
 		gr.lineStyle();
 	}
 	
@@ -613,7 +614,13 @@ class LoveGraphics
 		for (i in 1...vertices.length) gr.lineTo(vertices[i].x, vertices[i].y);
 		gr.lineTo(vertices[0].x, vertices[0].y);
 		gr.endFill();
-		Love.handler.canvas.draw(_sprite);
+		
+		var rt:BitmapData;
+		if (_canvas == null) rt = Love.handler.canvas;
+		else rt = _canvas._bitmapData;
+		
+		rt.draw(_sprite);
+		
 		gr.lineStyle();
 	}
 	
@@ -635,7 +642,7 @@ class LoveGraphics
 		drawable.draw(x, y, r, sx, sy, ox, oy, kx, ky, quad);
 	}
 	
-	public function bitmap(bd:BitmapData, x:Float = 0, y:Float = 0, ?scaleX:Float = 1, ?scaleY:Float = 1, ?angle:Float = 0, ?originX:Float = 0, ?originY:Float = 0, ?quad:Quad = null) {
+	public function bitmap(bd:BitmapData, x:Float = 0, y:Float = 0, ?scaleX:Float = 1, ?scaleY:Float = 1, ?angle:Float = 0, ?originX:Float = 0, ?originY:Float = 0, ?kx:Float = 0, ?ky:Float = 0, ?quad:Quad = null) {
 		//gr.clear();
 		_mat.identity();
 		_mat.translate( -originX, -originY);
@@ -648,16 +655,21 @@ class LoveGraphics
 		_colorTransform.greenMultiplier = Love.handler.color.g / 255;
 		_colorTransform.blueMultiplier = Love.handler.color.b / 255;
 		_colorTransform.alphaMultiplier = Love.handler.color.a / 255;
+		
+		var rt:BitmapData;
+		if (_canvas == null) rt = Love.handler.canvas;
+		else rt = _canvas._bitmapData;
+		
 		if (quad != null) {
 			_bufferRect.x = x + ( - originX) * scaleX;
 			_bufferRect.y = y + ( - originY) * scaleY;
 			_bufferRect.width = quad._width * scaleX;
 			_bufferRect.height = quad._height * scaleY;
-			Love.handler.canvas.draw(bd, _mat, _colorTransform, _blendMode, _bufferRect, false);
+			rt.draw(bd, _mat, _colorTransform, _blendMode, _bufferRect, false);
 		}
 		else {
 			_bufferRect.setEmpty();
-			Love.handler.canvas.draw(bd, _mat, _colorTransform, _blendMode);
+			rt.draw(bd, _mat, _colorTransform, _blendMode);
 		}
 	}
 	
@@ -685,7 +697,12 @@ class LoveGraphics
 		_mat.scale(sx, sy);
 		if (r != 0) _mat.rotate(r);
 		_mat.translate(x, y);
-		Love.handler.canvas.draw(_textField, _mat);
+		
+		var rt:BitmapData;
+		if (_canvas == null) rt = Love.handler.canvas;
+		else rt = _canvas._bitmapData;
+		
+		rt.draw(_textField, _mat);
 	}
 	
 	/**
@@ -755,6 +772,43 @@ class LoveGraphics
 		breakBatch();
 	}
 	
+	private static function getRenderItemFromPool():RenderItem
+	{
+		return (RenderItemPool.length > 0) ? RenderItemPool.pop() : new RenderItem();
+	}
+	
+	@:allow(love2d) private function getRenderItem(tilesheet:TilesheetExt, alpha:Bool = false, colored:Bool = false):RenderItem
+	{
+		if (_currentRenderItem == null || (_currentRenderItem.isAlpha != alpha || _currentRenderItem.isColored != colored || _currentRenderItem.tilesheet != tilesheet))
+		{
+			_currentRenderItem = getRenderItemFromPool();
+			_currentRenderItem.isColored = colored;
+			_currentRenderItem.isAlpha = alpha;
+			
+			if (colored && alpha)
+			{
+				_currentRenderItem.numElementsPerQuad = RenderItem.NUM_ELEMENTS_RGB_ALPHA;
+			}
+			else if (colored && !alpha)
+			{
+				_currentRenderItem.numElementsPerQuad = RenderItem.NUM_ELEMENTS_RGB;
+			}
+			else if (!colored && alpha)
+			{
+				_currentRenderItem.numElementsPerQuad = RenderItem.NUM_ELEMENTS_ALPHA;
+			}
+			else
+			{
+				_currentRenderItem.numElementsPerQuad = RenderItem.NUM_ELEMENTS_NO_RGB_ALPHA;
+			}
+			
+			_currentRenderItem.tilesheet = tilesheet;
+			_renderItems.push(_currentRenderItem);
+		}
+		
+		return _currentRenderItem;
+	}
+	
 	// constructors
 	
 	/**
@@ -799,6 +853,17 @@ class LoveGraphics
 	 */
 	public function newQuad(x:Float = 0, y:Float = 0, width:Int = 1, height:Int = 1, sx:Int, sy:Int):Quad {
 		return new Quad(x, y, width, height, sx, sy);
+	}
+	
+	/**
+	 * Creates a new Canvas object for offscreen rendering. 
+	 * @param	?width	The desired width of the Canvas. 
+	 * @param	?height	The desired height of the Canvas. 
+	 * @param	?format	The desired texture format of the Canvas. 
+	 * @return	A new Canvas with specified width and height. 
+	 */
+	public function newCanvas(?width:Int = null, ?height:Int = null, ?format:String = "normal"):Canvas {
+		return new Canvas(width, height, format);
 	}
 	
 	public function newParticleSystem(image:Image, ?buffer:Int = 1000):ParticleSystem {

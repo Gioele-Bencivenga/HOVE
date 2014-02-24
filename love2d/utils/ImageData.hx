@@ -106,8 +106,8 @@ class ImageData extends Data
 			Love.newError("Invalid source data.");
 			return;
 		}
-		_bufferRect.setTo(sx, sy, sw, sh);
-		_bufferPoint.setTo(dx, dy);
+		_bufferRect.x = sx; _bufferRect.y = sy; _bufferRect.width = sw; _bufferRect.height = sh;
+		_bufferPoint.x = dx; _bufferPoint.y = dy;
 		_bitmapData.copyPixels(source._bitmapData, _bufferRect, _bufferPoint);
 	}
 	
