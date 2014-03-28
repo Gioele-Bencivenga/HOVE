@@ -11,6 +11,7 @@ import flash.geom.ColorTransform;
 import flash.geom.Matrix;
 import flash.geom.Rectangle;
 import flash.Lib;
+import flash.system.Capabilities;
 import flash.text.TextField;
 import flash.text.TextFieldAutoSize;
 import flash.text.TextFormat;
@@ -326,7 +327,7 @@ class LoveGraphics
 	 * @return	The width of the window. 
 	 */
 	inline public function getWidth():Int {
-		return Love.window.getWidth();
+		return Capabilities.screenResolutionX;
 	}
 	
 	/**
@@ -334,7 +335,7 @@ class LoveGraphics
 	 * @return	The height of the window. 
 	 */
 	inline public function getHeight():Int {
-		return Love.window.getHeight();
+		return Capabilities.screenResolutionY;
 	}
 	
 	/**
