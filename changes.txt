@@ -5,6 +5,7 @@ HOVE 0.2
 	
 	* Basic support for love.physics (WHOA!)
 	* Basic support for love.filesystem
+	* Brand new renderer!
 	* Added love.graphics.getWidth()
 	* Added love.graphics.getHeight()
 	* Added love.graphics.getDimensions()
@@ -31,8 +32,6 @@ HOVE 0.2
 	* Added support for SpriteBatchUsage
 	* Added basic joystick support for HTML5
 	
-	* SpriteBatch works now
-	* love.graphics.draw() now uses batching
 	* love.graphics.setColor() now accepts tables
 	
 	* Fixed arguments for Image and SpriteBatch
