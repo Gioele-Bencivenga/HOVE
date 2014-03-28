@@ -20,7 +20,7 @@ class LoveWindow
 	
 	public function new() 
 	{
-		_flags = {};
+		_flags = {fullscreen: false};
 		setMode(getWidth(), getHeight(), {});
 	}
 	
@@ -76,8 +76,8 @@ class LoveWindow
 	 */
 	public function setFullscreen(fullscreen:Bool):Bool {
 		Love.stage.displayState = (!fullscreen)?StageDisplayState.NORMAL:StageDisplayState.FULL_SCREEN;
-		Love.handler.canvas = new BitmapData(Love.stage.stageWidth, Love.stage.stageHeight);
-		Love.handler.bitmap.bitmapData = Love.handler.canvas;
+		//Love.handler.canvas = new BitmapData(160, 800);
+		//Love.handler.bitmap.bitmapData = Love.handler.canvas;
 		_flags.fullscreen = fullscreen;
 		return true;
 	}
@@ -125,7 +125,7 @@ class LoveWindow
 		height = (height <= _flags.minheight)?getHeight():height;
 		if (flags == null) return false;
 		
-		if (flags.fullscreen == null) flags.fullscreen = getFullscreen();
+		if (flags.fullscreen == null) flags.fullscreen = false;
 		if (flags.fullscreentype == null) flags.fullscreentype = "normal";
 		if (flags.vsync == null) flags.vsync = true;
 		if (flags.fsaa == null) flags.fsaa = 0;
