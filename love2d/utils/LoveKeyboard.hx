@@ -11,6 +11,8 @@ class LoveKeyboard
 	private var _textInput:Bool = false;
 	static private var _keyChar:Map<String, Int>;
 	static private var _keyInt:Map<Int, String>;
+	static public var isPressed:String->Void = null;
+	static public var isReleased:String->Void = null;
 	
 	public function new()
 	{

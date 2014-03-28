@@ -1,4 +1,5 @@
 package love2d.utils;
+import dust.Dust;
 import flash.display.Bitmap;
 import flash.display.BitmapData;
 import flash.display.BlendMode;
@@ -18,9 +19,6 @@ import love2d.Handler;
 import love2d.Handler.Color;
 import love2d.Love;
 import openfl.Assets;
-import openfl.display.Tilesheet;
-
-import love2d.utils.SpriteBatch;
 
 /**
  * Drawing of shapes and images, management of screen geometry.
@@ -28,9 +26,6 @@ import love2d.utils.SpriteBatch;
 
 class LoveGraphics
 {
-	private static var RenderItemPool:Array<RenderItem> = [];
-	private var _renderItems:Array<RenderItem>;
-	private var _currentRenderItem:RenderItem;
 	
 	private var _sprite:Sprite;
 	private var _bm:Bitmap;
@@ -39,19 +34,20 @@ class LoveGraphics
 	private var _colorTransform:ColorTransform;
 	private var _font:Font;
 	private var _bufferRect:Rectangle;
-	public var _textField:TextField;
+	private var _textField:TextField;
 	private var _textFormat:TextFormat;
 	private var _pointSize:Float = 1;
 	private var _lineWidth:Float = 1;
 	private var _jointStyle:JointStyle;
 	private var _lineStyle:String;
 	private var _canvas:Canvas;
+	private var _color:Color;
 	
 	private var _featuresMap:Map<String, Bool>;
-	@:allow(love2d.utils) private var _batchMap:Map<Image, SpriteBatch>;
 	
-	@:allow(love2d.utils.SpriteBatch) private var gr:Graphics;
-	private var _asprite:Sprite;
+	@:allow(love2d) private var gr:Graphics;
+	
+	@:allow(love2d) private var _dust:Dust;
 	
 	// params
 	private var _angle:Float;
@@ -67,7 +63,11 @@ class LoveGraphics
 		_sprite = new Sprite();
 		gr = _sprite.graphics;
 		
-		_asprite = new Sprite();
+		// dust
+		_dust = new Dust();
+		_dust.active = false;
+		_dust.targetGraphics = gr;
+		_dust.errorCallback = Love.newError;
 		
 		_bm = new Bitmap();
 		_mat = new Matrix();
@@ -86,9 +86,7 @@ class LoveGraphics
 		_textField.autoSize = TextFieldAutoSize.LEFT;
 		
 		_sprite.addChild(_bm);
-		_asprite.addChild(_bm);
 		Lib.current.stage.addChild(_sprite);
-		Lib.current.stage.addChild(_asprite);
 		
 		// graphics features
 		_featuresMap = new Map();
@@ -103,11 +101,6 @@ class LoveGraphics
 		_featuresMap.set("bc5", false);
 		
 		_lineStyle = "smooth";
-		
-		_renderItems = [];
-		
-		// TODO: remove it later
-		_batchMap = new Map();
 	}
 	
 	/**
@@ -209,13 +202,13 @@ class LoveGraphics
 		green = if (green < 0) 0 else if (green > 255) 255 else green;
 		blue = if (blue < 0) 0 else if (blue > 255) 255 else blue;
 		alpha = if (alpha < 0) 0 else if (alpha > 255) 255 else alpha;
-		if (Std.is(red, Array)) {
+		/*if (Std.is(red, Array)) {
 			var l:Int = red.length;
 			r = if (l > 0) red[0] else 255;
 			green = if (l > 1) red[1] else 255;
 			blue = if (l > 2) red[2] else 255;
 			alpha = if (l > 3) red[3] else 255;
-		}
+		}*/
 		Love.handler.color = {r: r, g: green, b: blue, a: alpha};
 		_colorTransform.redMultiplier = red / 255;
 		_colorTransform.greenMultiplier = green / 255;
@@ -460,13 +453,11 @@ class LoveGraphics
 	 * @param	height	Height of the rectangle. 
 	 */
 	public function rectangle(mode:String, x:Float, y:Float, width:Float, height:Float) {
-		#if (flash || js)
 		gr.clear();
-		#end
-		
+		// updateBatch();
 		if (mode == "line") {
-			gr.lineStyle(_lineWidth, Love.handler.intColor, Love.handler.color.a / 255);
-			gr.drawRect(x, y, width, height);
+			//gr.lineStyle(_lineWidth, Love.handler.intColor, Love.handler.color.a / 255);
+			//gr.drawRect(x, y, width, height);
 		}
 		else if (mode == "fill")
 		{
@@ -475,11 +466,11 @@ class LoveGraphics
 			gr.endFill();
 		}
 		
-		var rt:BitmapData;
+		/*var rt:BitmapData;
 		if (_canvas == null) rt = Love.handler.canvas;
 		else rt = _canvas._bitmapData;
 		//
-		rt.draw(_sprite);
+		rt.draw(_sprite);*/
 	}
 	
 	/**
@@ -491,12 +482,10 @@ class LoveGraphics
 	 * @param	?segments	The number of segments used for drawing the circle. 
 	 */
 	public function circle(mode:String, x:Float, y:Float, radius:Float, ?segments:Int) {
-		#if (flash || js)
 		gr.clear();
-		#end
 		
 		// TO-DO: line style
-		
+		Lib.trace("x: " + x + ", " + y);
 		if (mode == "line") {
 			gr.lineStyle(_lineWidth, Love.handler.intColor, Love.handler.color.a / 255);
 			gr.drawCircle(x, y, radius);
@@ -504,15 +493,16 @@ class LoveGraphics
 		else if (mode == "fill")
 		{
 			gr.beginFill(Love.handler.intColor, Love.handler.color.a / 255);
-			gr.drawCircle(x, y, radius);
+			//gr.drawCircle(x * 2, y * 2, radius);
 			gr.endFill();
 		}
 		
-		var rt:BitmapData;
+		/*var rt:BitmapData;
 		if (_canvas == null) rt = Love.handler.canvas;
 		else rt = _canvas._bitmapData;
 		//
-		rt.draw(_sprite);
+		rt.draw(_sprite);*/
+		// updateBatch();
 	}
 	
 	/**
@@ -532,23 +522,17 @@ class LoveGraphics
 	 * @param	?y2	The position of second point on the y-axis. 
 	 */
 	public function line(x1:Dynamic, ?y1:Float = null, ?x2:Float = null, ?y2:Float = null) {
-		breakBatch();
-		
-		Lib.trace("line");
-		
 		if (Std.is(x1, Float)) {
 			
 		}
 		else if (Std.is(x1, Array)) {
 			if (x1.length == 0) {
-				flash.Lib.trace("Array is empty.");
+				Love.newError("The given array is invalid.");
 				return;
 			}
 			if (x1.length % 2 != 0) x1.pop();
 		}
-		#if (flash || js)
 		gr.clear();
-		#end
 		
 		if (_lineStyle == "smooth") Love.stage.quality = StageQuality.BEST;
 		else if (_lineStyle == "rough") Love.stage.quality = StageQuality.LOW;
@@ -575,6 +559,7 @@ class LoveGraphics
 		rt.draw(_sprite);
 		
 		gr.lineStyle();
+		// updateBatch();
 	}
 	
 	/**
@@ -596,9 +581,7 @@ class LoveGraphics
 	 * @param	vertices	The vertices of the polygon as a table. 
 	 */
 	public function polygon(mode:String, vertices:Array<Handler.Point>) {
-		#if (flash || js)
 		gr.clear();
-		#end
 		
 		if (_lineStyle == "smooth") Love.stage.quality = StageQuality.BEST;
 		else if (_lineStyle == "rough") Love.stage.quality = StageQuality.LOW;
@@ -622,6 +605,7 @@ class LoveGraphics
 		rt.draw(_sprite);
 		
 		gr.lineStyle();
+		// updateBatch();
 	}
 	
 	/**
@@ -642,25 +626,28 @@ class LoveGraphics
 		drawable.draw(x, y, r, sx, sy, ox, oy, kx, ky, quad);
 	}
 	
-	public function bitmap(bd:BitmapData, x:Float = 0, y:Float = 0, ?scaleX:Float = 1, ?scaleY:Float = 1, ?angle:Float = 0, ?originX:Float = 0, ?originY:Float = 0, ?kx:Float = 0, ?ky:Float = 0, ?quad:Quad = null) {
+	@:allow(love2d) private function bitmap(bd:BitmapData, x:Float = 0, y:Float = 0, ?scaleX:Float = 1, ?scaleY:Float = 1, ?angle:Float = 0, ?originX:Float = 0, ?originY:Float = 0, ?kx:Float = 0, ?ky:Float = 0, ?quad:Quad = null) {
 		//gr.clear();
 		_mat.identity();
-		_mat.translate( -originX, -originY);
+		//_mat.translate( -originX, -originY);
 		if (quad != null) {
 			_mat.translate(-quad._x, -quad._y);
 		} else if (angle != 0) _mat.rotate(angle);
 		_mat.scale(scaleX, scaleY);
 		_mat.translate(x, y);
-		_colorTransform.redMultiplier = Love.handler.color.r / 255;
+		/*_colorTransform.redMultiplier = Love.handler.color.r / 255;
 		_colorTransform.greenMultiplier = Love.handler.color.g / 255;
 		_colorTransform.blueMultiplier = Love.handler.color.b / 255;
-		_colorTransform.alphaMultiplier = Love.handler.color.a / 255;
+		_colorTransform.alphaMultiplier = Love.handler.color.a / 255;*/
+		
+		Lib.trace("1");
 		
 		var rt:BitmapData;
-		if (_canvas == null) rt = Love.handler.canvas;
-		else rt = _canvas._bitmapData;
-		
-		if (quad != null) {
+		/*if (_canvas == null) */rt = Love.handler.canvas;
+		//else rt = _canvas._bitmapData;
+		Love.handler.canvas.draw(bd, _mat, _colorTransform, _blendMode);
+		Lib.trace("2");
+		/*if (quad != null) {
 			_bufferRect.x = x + ( - originX) * scaleX;
 			_bufferRect.y = y + ( - originY) * scaleY;
 			_bufferRect.width = quad._width * scaleX;
@@ -670,7 +657,7 @@ class LoveGraphics
 		else {
 			_bufferRect.setEmpty();
 			rt.draw(bd, _mat, _colorTransform, _blendMode);
-		}
+		}*/
 	}
 	
 	/**
@@ -732,83 +719,6 @@ class LoveGraphics
 		print(text, x, y, r, sx, sy, ox, oy, kx, ky);
 	}
 	
-	private function breakBatch():Void
-	{
-		//Lib.trace("breakBatch");
-		var flags:Int;
-		var item:RenderItem;
-		var l:Int = _renderItems.length;
-		
-		for (i in 0...l)
-		{
-			item = _renderItems[i];
-			flags = Tilesheet.TILE_TRANS_2x2;
-			if (item.isColored)
-			{
-				flags |= Tilesheet.TILE_RGB;
-			}
-			else if (item.isAlpha)
-			{
-				flags |= Tilesheet.TILE_ALPHA;
-			}
-			item.tilesheet.drawTiles(Love.graphics.gr, item.renderList, false, flags);
-		}
-		
-		var l:Int = _renderItems.length;
-		var item:RenderItem;
-		
-		for (i in 0...l)
-		{
-			item = _renderItems.pop();
-			item.clear();
-			RenderItemPool.push(item);
-		}
-		
-		_currentRenderItem = null;
-	}
-	
-	public function onExitFrame() {
-		//Lib.trace("onExitFrame");
-		breakBatch();
-	}
-	
-	private static function getRenderItemFromPool():RenderItem
-	{
-		return (RenderItemPool.length > 0) ? RenderItemPool.pop() : new RenderItem();
-	}
-	
-	@:allow(love2d) private function getRenderItem(tilesheet:TilesheetExt, alpha:Bool = false, colored:Bool = false):RenderItem
-	{
-		if (_currentRenderItem == null || (_currentRenderItem.isAlpha != alpha || _currentRenderItem.isColored != colored || _currentRenderItem.tilesheet != tilesheet))
-		{
-			_currentRenderItem = getRenderItemFromPool();
-			_currentRenderItem.isColored = colored;
-			_currentRenderItem.isAlpha = alpha;
-			
-			if (colored && alpha)
-			{
-				_currentRenderItem.numElementsPerQuad = RenderItem.NUM_ELEMENTS_RGB_ALPHA;
-			}
-			else if (colored && !alpha)
-			{
-				_currentRenderItem.numElementsPerQuad = RenderItem.NUM_ELEMENTS_RGB;
-			}
-			else if (!colored && alpha)
-			{
-				_currentRenderItem.numElementsPerQuad = RenderItem.NUM_ELEMENTS_ALPHA;
-			}
-			else
-			{
-				_currentRenderItem.numElementsPerQuad = RenderItem.NUM_ELEMENTS_NO_RGB_ALPHA;
-			}
-			
-			_currentRenderItem.tilesheet = tilesheet;
-			_renderItems.push(_currentRenderItem);
-		}
-		
-		return _currentRenderItem;
-	}
-	
 	// constructors
 	
 	/**
@@ -866,7 +776,7 @@ class LoveGraphics
 		return new Canvas(width, height, format);
 	}
 	
-	public function newParticleSystem(image:Image, ?buffer:Int = 1000):ParticleSystem {
+	/*public function newParticleSystem(image:Image, ?buffer:Int = 1000):ParticleSystem {
 		return new ParticleSystem(image, buffer);
-	}
+	}*/
 }

@@ -24,7 +24,6 @@ import flash.geom.Rectangle;
 import flash.Lib;
 import flash.system.System;
 import flash.ui.Mouse;
-import love2d.Handler.Color;
 import love2d.utils.Cursor;
 import love2d.utils.Image;
 import love2d.utils.Joystick;
@@ -56,7 +55,6 @@ class Handler extends Sprite
 	public var hasFocus:Bool = true;
 	public var cursor:Cursor;
 	public var joysticks:Array<Joystick>;
-	public var fps:Int = 0;
 	
 	private var _timer:Int = 0;
 	private var _rect:Rectangle;
@@ -64,7 +62,7 @@ class Handler extends Sprite
 	private var _joy:Joystick;
 	
 	#if html5
-	private var joyList:GamepadList;
+	private var joyList:Dynamic;
 	#end
 	
 	public function new()
@@ -82,7 +80,9 @@ class Handler extends Sprite
 		#if (cpp || neko)
 		n = 4;
 		#elseif (html5)
-		joyList = untyped navigator.webkitGetGamepads();
+		if (untyped navigator.webkitGetGamepads) {
+			joyList = untyped navigator.webkitGetGamepads();
+		} else joyList = cast [];
 		n = joyList.length;
 		#elseif (flash)
 		n = 0;
@@ -135,7 +135,7 @@ class Handler extends Sprite
 		keys = [for (i in 0...255) false];
 		
 		// enterframe
-		addEventListener(Event.ENTER_FRAME, function(e:Event) {
+		addEventListener(Event.ENTER_FRAME, function(e:Event) {if (Love.update != null) Love.update(dt);
 			var t:Int = Lib.getTimer();
 			dt = (t - _timer) * .001;
 			_timer = t;
@@ -143,10 +143,14 @@ class Handler extends Sprite
 			if (Love.update != null) Love.update(dt);
 			if (Love.draw != null) {
 				Love.graphics.clear();
-				Love.graphics.setColor(color.r, color.g, color.b, color.a);
+				for (v in Love.graphics._dust.list) {
+					if (v.userData == "image") v.clear();
+				}
 				Love.draw();
-				Love.graphics.onExitFrame();
-				//Love.graphics.setColor(255, 255, 255, 255);
+				for (v in Love.graphics._dust.list) {
+					v.draw();
+				}
+				Love.graphics.setColor(255, 255, 255, 255);
 				if (cursor != null) {
 					var img:Image = cursor.getImage();
 					Love.graphics.draw(img, Love.mouse.getX(), Love.mouse.getY());
@@ -172,29 +176,22 @@ class Handler extends Sprite
 			#end
 		});
 		
-		// exitframe
-		/*addEventListener(Event.fra, function(e:Event) {
-			Love.graphics.onExitFrame();
-		});*/
-		
 		// keydown
 		stage.addEventListener(KeyboardEvent.KEY_DOWN, function(e:KeyboardEvent) {
 			if (!keys[e.keyCode] && Love.keypressed != null) Love.keypressed(LoveKeyboard.toChar(e.keyCode), false);
 			keys[e.keyCode] = true;
+			
+			if (LoveKeyboard.isPressed != null) LoveKeyboard.isPressed(LoveKeyboard.toChar(e.keyCode));
+			
 			// handling textinput
 			if (Love.keyboard.hasTextInput()) {
 				var s:String = LoveKeyboard.toChar(e.keyCode);
-				if (Love.keyboard.isDown("lshift")) s = s.toUpperCase();
 				
-				var t:String;
-				if (s != "LSHIFT" && s != "backspace" && s != "return") {
-					t = s;
+				if ((e.keyCode > 64 && e.keyCode < 91) || (e.keyCode > 47 && e.keyCode < 58) || e.keyCode == 32) {
+					if (Love.keyboard.isDown("lshift")) s = s.toUpperCase();
+					if (Love.keyboard.isDown(" ")) s = " ";
+					if (Love.textinput != null) Love.textinput(s);
 				}
-				else if (StringTools.isSpace(s, 0)) t = " ";
-				else {
-					t = "";
-				}
-				if (Love.textinput != null) Love.textinput(t);
 			}
 			
 			// handling back key on Android
@@ -208,6 +205,7 @@ class Handler extends Sprite
 		stage.addEventListener(KeyboardEvent.KEY_UP, function(e:KeyboardEvent) {
 			if (keys[e.keyCode] && Love.keyreleased != null) Love.keyreleased(LoveKeyboard.toChar(e.keyCode));
 			keys[e.keyCode] = false;
+			if (LoveKeyboard.isReleased != null) LoveKeyboard.isReleased(LoveKeyboard.toChar(e.keyCode));
 		});
 		
 		// mousebuttondown / up
@@ -221,8 +219,6 @@ class Handler extends Sprite
 			mouseLeftPressed = false;
 		});
 		
-		// it isn't my mistake!
-		#if z
 		stage.addEventListener(MouseEvent.RIGHT_MOUSE_DOWN, function(e:MouseEvent) {
 			if (!mouseRightPressed && Love.mousepressed != null) Love.mousepressed(e.stageX, e.stageY, "r");
 			mouseRightPressed = true;
@@ -242,7 +238,6 @@ class Handler extends Sprite
 			if (mouseMiddlePressed && Love.mousereleased != null) Love.mousereleased(e.stageX, e.stageY, "m");
 			mouseMiddlePressed = false;
 		});
-		#end
 		
 		stage.addEventListener(MouseEvent.MOUSE_WHEEL, function(e:MouseEvent) {
 			if (mouseWheel != e.delta) {
@@ -336,7 +331,7 @@ class Handler extends Sprite
 		#end
 		
 		// joystick
-		#if (cpp || neko)
+		#if (windows || neko)
 		// axismove
 		stage.addEventListener(JoystickEvent.AXIS_MOVE, function(e:JoystickEvent) {
 			var numAxis:Int = e.axis.length;
@@ -408,7 +403,7 @@ class Handler extends Sprite
 		bitmap = new Bitmap(canvas);
 		addChild(bitmap);
 	}
-	
+
 	public function rgb(r:Int, g:Int, b:Int):Int {
 		return (r & 0xFF) << 16 | (g & 0xFF) << 8 | (b & 0xFF);
 	}

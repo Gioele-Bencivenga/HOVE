@@ -221,7 +221,7 @@ class Love
 	inline static public var _hoveversion:String = "0.1.1";
 	
 	// private stuff
-	@:allow(love2d.utils) static private var handler:Handler;
+	/*@:allow(love2d)*/ static /*private*/public var handler:Handler;
 	static private var _inited:Bool = false;
 
 	static public function init() {
