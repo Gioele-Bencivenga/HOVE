@@ -1,6 +1,7 @@
 package love2d.utils;
 import flash.display.BitmapData;
 import flash.display.StageDisplayState;
+import flash.Lib;
 import flash.system.Capabilities;
 import love2d.Handler.Size;
 import love2d.Love;
@@ -111,8 +112,6 @@ class LoveWindow
 		#end
 	}
 	
-	// to-do
-	
 	/**
 	 * Changes the display mode. 
 	 * @param	width	Display width. 
@@ -121,12 +120,13 @@ class LoveWindow
 	 * @return	True if successful, false otherwise. 
 	 */
 	public function setMode(width:Int, height:Int, ?flags:Flags = null):Bool {
-		width = (width <= 0)?getWidth():width;
-		height = (height <= 0)?getHeight():height;
+		// to-do
+		width = (width <= _flags.minwidth)?getWidth():width;
+		height = (height <= _flags.minheight)?getHeight():height;
 		if (flags == null) return false;
 		
 		if (flags.fullscreen == null) flags.fullscreen = getFullscreen();
-		else setFullscreen(flags.fullscreen);
+		if (flags.fullscreentype == null) flags.fullscreentype = "normal";
 		if (flags.vsync == null) flags.vsync = true;
 		if (flags.fsaa == null) flags.fsaa = 0;
 		if (flags.resizable == null) flags.resizable = false;
@@ -136,6 +136,15 @@ class LoveWindow
 		if (flags.minwidth == null) flags.minwidth = 1;
 		if (flags.minheight == null) flags.minheight = 1;
 		
+		
+		// width, height
+		#if (cpp || neko)
+		Lib.current.stage.resize(width, height);
+		#end
+		// fullscreen
+		setFullscreen(flags.fullscreen);
+		
+		//
 		_flags = flags;
 		return true;
 	}
@@ -204,6 +213,7 @@ class LoveWindow
 
 typedef Flags = {
 	?fullscreen:Null<Bool>,
+	?fullscreentype:String,
 	?vsync:Null<Bool>,
 	?fsaa:Null<Int>,
 	?resizable:Null<Bool>,
