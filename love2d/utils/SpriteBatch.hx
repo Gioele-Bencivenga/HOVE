@@ -129,8 +129,8 @@ class SpriteBatch extends Drawable
 	}
 	
 	/**
-	 * 
-	 * @param	image
+	 * Replaces the image used for the sprites. 
+	 * @param	image	The new Image to use for the sprites. 
 	 */
 	public function setImage(image:Image) {
 		// to-do: not supported yet
@@ -166,13 +166,12 @@ class SpriteBatch extends Drawable
 	}
 	
 	/**
-	 * 
+	 * Unbinds the SpriteBatch. 
 	 */
 	public function unbind() {
 		// to-do
 	}
 	
 	override public function draw(?x:Float, ?y:Float, ?r:Float, ?sx:Float, ?sy:Float, ?ox:Float, ?oy:Float, ?kx:Float, ?ky:Float, ?quad:Quad = null) {
-		//_buffer.draw();
 	}
 }
