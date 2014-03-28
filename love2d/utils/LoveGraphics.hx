@@ -327,7 +327,7 @@ class LoveGraphics
 	 * @return	The width of the window. 
 	 */
 	inline public function getWidth():Int {
-		return Capabilities.screenResolutionX;
+		return Std.int(Capabilities.screenResolutionX);
 	}
 	
 	/**
@@ -335,7 +335,7 @@ class LoveGraphics
 	 * @return	The height of the window. 
 	 */
 	inline public function getHeight():Int {
-		return Capabilities.screenResolutionY;
+		return Std.int(Capabilities.screenResolutionY);
 	}
 	
 	/**
