@@ -3,6 +3,8 @@ import flash.display.Sprite;
 import flash.display.Stage;
 import flash.events.Event;
 import flash.Lib;
+import love2d.Love.LoveConfModules;
+import love2d.Love.LoveConfWindow;
 import love2d.utils.Joystick;
 import love2d.utils.LoveAudio;
 import love2d.utils.LoveEvent;
@@ -188,6 +190,10 @@ class Love
 	 * Callback function triggered when the game is closed.
 	 */
 	static public var quit:Void->Void = null;
+	/**
+	 * 
+	 */
+	static public var conf(default, set):LoveConf->Void = null;
 	
 	// modules
 	static public var audio(default, null):LoveAudio;
@@ -209,7 +215,7 @@ class Love
 	static public var window(default, null):LoveWindow;
 	
 	// public stuff
-	@:allow(love2d) static private var stage(get, null):Stage;
+
 	/**
 	 * Current Love API version.
 	 */
@@ -221,8 +227,10 @@ class Love
 	inline static public var _hoveversion:String = "0.1.1";
 	
 	// private stuff
-	/*@:allow(love2d)*/ static /*private*/public var handler:Handler;
+	@:allow(love2d) static public var handler:Handler;
+	@:allow(love2d) static private var stage(get, null):Stage;
 	static private var _inited:Bool = false;
+	static private var _conf:LoveConf = new LoveConf();
 
 	static public function init() {
 		var h:Sprite = new Sprite();
@@ -249,6 +257,7 @@ class Love
 			
 			handler = new Handler();
 			graphics = new LoveGraphics();
+			applyConfiguration();
 			if (!_inited && load != null) {
 				load();
 				_inited = true;
@@ -286,6 +295,27 @@ class Love
 		Lib.trace(msg);
 	}
 	
+	static private function applyConfiguration() {
+		// identity
+		Love.filesystem.setIdentity(_conf.identity);
+		// window, height
+		Love.window.setMode(_conf.window.width, _conf.window.height, {
+			fullscreen: _conf.window.fullscreen,
+			// to-do: not supported yet
+			fullscreentype: _conf.window.fullscreentype,
+			vsync: _conf.window.vsync,
+			fsaa: _conf.window.fsaa,
+			resizable: _conf.window.resizable,
+			borderless: _conf.window.borderless,
+			display: _conf.window.display,
+			minwidth: _conf.window.minwidth,
+			minheight: _conf.window.minheight,
+		});
+		// icon (to-do)
+		// title
+		Love.window.setTitle(_conf.window.title);
+	}
+	
 	static private function get_physics():LovePhysics {
 		#if nape
 		return physics;
@@ -293,5 +323,80 @@ class Love
 		newError("You need to install nape to have access to the love.physics.");
 		return null;
 		#end
+	}
+	
+	static private function set_conf(n:LoveConf->Void):LoveConf->Void {
+		if (n == null) return null;
+		
+		conf = n;
+		n(_conf);
+		return n;
+	}
+}
+
+class LoveConf {
+	public var identity:String;
+	public var version:String;
+	public var console:Bool;
+	
+	public var window:LoveConfWindow = new LoveConfWindow();
+	public var modules:LoveConfModules = new LoveConfModules();
+	
+	public function new() {
+		identity = "HOVE";
+		version = Love._version;
+		console = false;
+	}
+}
+
+class LoveConfWindow {
+	public var title:String;
+	public var icon:String;
+	public var width:Int;
+	public var height:Int;
+	public var borderless:Bool;
+	public var resizable:Bool;
+	public var minwidth:Int;
+	public var minheight:Int;
+	public var fullscreen:Bool;
+	public var fullscreentype:String;
+	public var vsync:Bool;
+	public var fsaa:Int;
+	public var display:Int;
+	
+	public function new() {
+		title = "Untitled";
+		icon = null;
+		width = 800;
+		height = 600;
+		borderless = false;
+		resizable = false;
+		minwidth = 1;
+		minheight = 1;
+		fullscreen = false;
+		fullscreentype = "normal";
+		vsync = true;
+		fsaa = 0;
+		display = 1;
+	}
+}
+
+class LoveConfModules {
+	public var audio:Bool;
+	public var event:Bool;
+	public var graphics:Bool;
+	public var image:Bool;
+	public var joystick:Bool;
+	public var keyboard:Bool;
+	public var math:Bool;
+	public var mouse:Bool;
+	public var physics:Bool;
+	public var sound:Bool;
+	public var system:Bool;
+	public var timer:Bool;
+	public var window:Bool;
+	
+	public function new() {
+		audio = event = graphics = image = joystick = keyboard = math = mouse = physics = sound = system = timer = window = true;
 	}
 }

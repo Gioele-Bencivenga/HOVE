@@ -121,31 +121,31 @@ class LoveWindow
 	 */
 	public function setMode(width:Int, height:Int, ?flags:Flags = null):Bool {
 		// to-do
-		width = (width <= _flags.minwidth)?getWidth():width;
-		height = (height <= _flags.minheight)?getHeight():height;
-		if (flags == null) return false;
-		
-		if (flags.fullscreen == null) flags.fullscreen = false;
-		if (flags.fullscreentype == null) flags.fullscreentype = "normal";
-		if (flags.vsync == null) flags.vsync = true;
-		if (flags.fsaa == null) flags.fsaa = 0;
-		if (flags.resizable == null) flags.resizable = false;
-		if (flags.borderless == null) flags.borderless = false;
-		if (flags.centered == null) flags.centered = true;
-		if (flags.display == null) flags.display = 1;
-		if (flags.minwidth == null) flags.minwidth = 1;
-		if (flags.minheight == null) flags.minheight = 1;
-		
-		
+		width = (width <= _flags.minwidth)?_flags.minwidth:width;
+		height = (height <= _flags.minheight)?_flags.minheight:height;
 		// width, height
 		#if (cpp || neko)
 		Lib.current.stage.resize(width, height);
+		if (Love.resize != null) Love.resize(width, height);
 		#end
-		// fullscreen
-		setFullscreen(flags.fullscreen);
 		
-		//
-		_flags = flags;
+		if (flags != null) {
+			if (flags.fullscreen == null) flags.fullscreen = false;
+			if (flags.fullscreentype == null) flags.fullscreentype = "normal";
+			if (flags.vsync == null) flags.vsync = true;
+			if (flags.fsaa == null) flags.fsaa = 0;
+			if (flags.resizable == null) flags.resizable = false;
+			if (flags.borderless == null) flags.borderless = false;
+			if (flags.centered == null) flags.centered = true;
+			if (flags.display == null) flags.display = 1;
+			if (flags.minwidth == null) flags.minwidth = 1;
+			if (flags.minheight == null) flags.minheight = 1;
+			// fullscreen
+			setFullscreen(flags.fullscreen);
+			//
+			_flags = flags;
+		}
+		
 		return true;
 	}
 	
