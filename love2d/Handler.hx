@@ -135,7 +135,7 @@ class Handler extends Sprite
 		keys = [for (i in 0...255) false];
 		
 		// enterframe
-		addEventListener(Event.ENTER_FRAME, function(e:Event) {if (Love.update != null) Love.update(dt);
+		addEventListener(Event.ENTER_FRAME, function(e:Event) {
 			var t:Int = Lib.getTimer();
 			dt = (t - _timer) * .001;
 			_timer = t;
@@ -397,9 +397,9 @@ class Handler extends Sprite
 			if (Love.quit != null) Love.quit();
 		});
 		color = { r: 255, g: 255, b: 255, a: 255 };
-		bgColor = {r: 0, g: 0, b: 0, a: 255};
+		bgColor = { r: 0, g: 0, b: 0, a: 255 };
 		
-		canvas = new BitmapData(stage.stageWidth, stage.stageHeight, true, 0);
+		canvas = new BitmapData(Lib.current.stage.stageWidth, Lib.current.stage.stageHeight, true, 0);
 		bitmap = new Bitmap(canvas);
 		addChild(bitmap);
 	}
